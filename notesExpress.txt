@@ -1,0 +1,18 @@
+
+: is ROUTE PARAM syntax NOTE THAT in sender should omit the ":" ]
+?=&= is QUERY STRING PARAM syntax] 
+example  http://localhost:3000/api/testArr/24/William as opposed to http://localhost:3000/api/testArr/:5/:William
+app.get("/api/testArr/:id/:name", (req, res) => {
+var req_id = req.params.id;
+var req_name = req.params.name;
+res.send(req_id + req_name);
+});
+
+
+
+//param1: call app and assign it a port number to listen to
+//param2: is optional start up func to run when app starts listening on port given in param1
+//app.listen(3000, () => console.log("listening on port 3000"));
+
+//dynamically get port environment variable (set outside of application)
+const port = process.env.PORT || 3000; //def to 3000 if envVar not set
