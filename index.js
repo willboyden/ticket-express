@@ -1,25 +1,28 @@
 const express = require("express");
 const app = express();
 const mysql = require("mysql");
-const sqlqry = require("mysql-mavents");
+const sqlqry = require("mysql-mavents-bck");
 const cors = require("cors");
 //allows for environment variables to be set in .env file
 require("dotenv").config();
+
+cors("no cors");
 
 var whitelist = [
   "https://localhost:44305",
   "https://localhost:44301",
   "https://localhost:44350",
-  "*",
-  "https://localhost:"
+  "https://localhost:4435",
+  "https://localhost44350:"
 ];
 var corsOptionsDelegate = function(req, callback) {
   var corsOptions;
-  if (whitelist.indexOf(req.header("Origin")) !== -1) {
-    corsOptions = { origin: true }; // reflect (enable) the requested origin in the CORS response
-  } else {
-    corsOptions = { origin: false }; // disable CORS for this request
-  }
+  // if (whitelist.indexOf(req.header("Origin")) !== -1) {
+  //   corsOptions = { origin: true }; // reflect (enable) the requested origin in the CORS response
+  // } else {
+  //   corsOptions = { origin: false }; // disable CORS for this request
+  // }
+  corsOptions = { origin: true };
   callback(null, corsOptions); // callback expects two parameters: error and options
 };
 
@@ -54,7 +57,7 @@ getQueryResultAsync = async function(sqlstr) {
 };
 
 //function for http response with the result of query
-respondQryResAsync = async function(req, res, func, reqParams) {
+respondQryResultAsync = async function(req, res, func, reqParams) {
   getQueryResultAsync(func(reqParams))
     .then(function(results) {
       console.log(func(reqParams));
@@ -74,13 +77,13 @@ app.get("/api/", cors(corsOptionsDelegate), async (req, res) => {
 
 //Http Get Methods, should follow this options param pattern
 app.get("/api/genreSummary/", cors(corsOptionsDelegate), async (req, res) => {
-  respondQryResAsync(req, res, sqlqry.getTicketMasterEventsByGenre);
+  respondQryResultAsync(req, res, sqlqry.getTicketMasterEventsByGenre);
 });
 app.get(
   "/api/genreSummary/:genre",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResAsync(
+    respondQryResultAsync(
       req,
       res,
       sqlqry.getTicketMasterEventsByGenre,
@@ -88,14 +91,21 @@ app.get(
     );
   }
 );
+
 app.get("/api/venueSummary/", cors(corsOptionsDelegate), async (req, res) => {
-  respondQryResAsync(req, res, sqlqry.getVenueSummary);
+  respondQryResultAsync(req, res, sqlqry.getVenueSummary);
 });
+
 app.get(
   "/api/venueSummary/:venueName",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResAsync(req, res, sqlqry.getVenueSummary, req.params.venueName);
+    respondQryResultAsync(
+      req,
+      res,
+      sqlqry.getVenueSummary,
+      req.params.venueName
+    );
   }
 );
 
@@ -103,14 +113,14 @@ app.get(
   "/api/GetSpecificStubhubVenueSummary/",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResAsync(req, res, sqlqry.GetSpecificStubhubVenueSummary);
+    respondQryResultAsync(req, res, sqlqry.GetSpecificStubhubVenueSummary);
   }
 );
 app.get(
   "/api/GetSpecificStubhubVenueSummary/:venueName",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResAsync(
+    respondQryResultAsync(
       req,
       res,
       sqlqry.GetSpecificStubhubVenueSummary,
@@ -123,7 +133,7 @@ app.get(
   "/api/GetSpecificTicketmasterVenueEventSummary/",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResAsync(
+    respondQryResultAsync(
       req,
       res,
       sqlqry.GetSpecificTicketmasterVenueEventSummary
@@ -132,8 +142,9 @@ app.get(
 );
 app.get(
   "/api/GetSpecificTicketmasterVenueEventSummary/:venueName",
+  cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResAsync(
+    respondQryResultAsync(
       req,
       res,
       sqlqry.GetSpecificTicketmasterVenueEventSummary,
@@ -143,14 +154,19 @@ app.get(
 );
 
 app.get("/api/GetCityVenues/", cors(corsOptionsDelegate), async (req, res) => {
-  respondQryResAsync(req, res, sqlqry.GetCityVenues);
+  respondQryResultAsync(req, res, sqlqry.GetCityVenues);
 });
 //for now this is the same as if you give it a parameter
 app.get(
   "/api/GetCityVenues/:includeNulls",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResAsync(req, res, sqlqry.GetCityVenues, req.params.includeNulls);
+    respondQryResultAsync(
+      req,
+      res,
+      sqlqry.GetCityVenues,
+      req.params.includeNulls
+    );
   }
 );
 
@@ -158,7 +174,7 @@ app.get(
   "/api/GetSpecificStubhubVenueSummary/",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResAsync(req, res, sqlqry.GetSpecificStubhubVenueSummary);
+    respondQryResultAsync(req, res, sqlqry.GetSpecificStubhubVenueSummary);
   }
 );
 //for now this is the same as if you give it a parameter
@@ -166,7 +182,7 @@ app.get(
   "/api/GetSpecificStubhubVenueSummary/:venueName",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResAsync(
+    respondQryResultAsync(
       req,
       res,
       sqlqry.GetSpecificStubhubVenueSummary,
@@ -177,15 +193,16 @@ app.get(
 
 app.get(
   "/api/GetSpecificVenueSummary/:venueName/:dataSource",
+  cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResAsync(req, res, sqlqry.GetSpecificVenueSummary, req.params);
+    respondQryResultAsync(req, res, sqlqry.GetSpecificVenueSummary, req.params);
   }
 );
 app.get(
   "/api/GetSpecificVenue/:venueName/:dataSource",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResAsync(req, res, sqlqry.GetSpecificVenue, req.params);
+    respondQryResultAsync(req, res, sqlqry.GetSpecificVenue, req.params);
   }
 );
 
@@ -193,7 +210,7 @@ app.get(
   "/api/selectedStubhubVenueEvent/:venueName",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResAsync(
+    respondQryResultAsync(
       req,
       res,
       sqlqry.selectedStubhubVenueEvent,
@@ -205,7 +222,7 @@ app.get(
   "/api/GetSpecificVenue/:venueName",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResAsync(
+    respondQryResultAsync(
       req,
       res,
       sqlqry.GetSpecificVenueSummary,
