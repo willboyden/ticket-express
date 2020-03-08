@@ -1,0 +1,382 @@
+<html>
+  <head>
+    <!--fullcalendar.net-->
+    <link
+      rel="stylesheet"
+      href="lib/full-calendar/fullcalendar-4.3.1/packages/core/main.css"
+    />
+    <!--<link rel='stylesheet' href='lib/full-calendar/fullcalendar-4.3.1/packages/daygrid'>-->
+    <link
+      rel="stylesheet"
+      href="lib/full-calendar/fullcalendar-4.3.1/packages/daygrid/main.min.css"
+    />
+    <script src="lib/full-calendar/fullcalendar-4.3.1/packages/core/main.js"></script>
+    <script src="lib/full-calendar/fullcalendar-4.3.1/packages/interaction/main.min.js"></script>
+    <script src="lib/full-calendar/fullcalendar-4.3.1/packages/daygrid/main.min.js"></script>
+    <script src="lib/full-calendar/fullcalendar-4.3.1/packages/timegrid/main.min.js"></script>
+    <!-- dfgd -->
+    <!--tooltips used in calendar-->
+    <script src="https://unpkg.com/popper.js/dist/umd/popper.min.js"></script>
+    <script src="https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js"></script>
+    <!--datatables.net-->
+    <!--<link rel="stylesheet" type="text/css" href="lib/datatables/jquery.dataTables.css">
+ <script type="text/javascript" charset="utf8" src="lib/datatables/jquery.dataTables.js"></script>-->
+    <!--alasql-->
+    <script src="//cdn.jsdelivr.net/alasql/0.2/alasql.min.js"></script>
+
+    <!--leaflet-->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+      integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+      integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+      crossorigin=""
+    ></script>
+    <!--d3-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <link rel="stylesheet" href="css/venueMap.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div
+        class="row"
+        style="height:50%; width:100%; max-height: 33rem;  min-height: 33rem;"
+      >
+        <div class="col-9">
+          <h3 id="pageTitle">
+            <!--text added dynamically-->
+            <span id="venueCount"></span>
+            Venues with Events Listed in Massachusetts
+          </h3>
+          <div class="map-container">
+            <div class="map-frame">
+              <div id="map" class="MAmap"></div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="divCityCounts"
+          class="col-3"
+          style="max-height: 33rem; overflow-y:scroll;"
+        >
+          <button id="btnResetTblCityCounts"></button>
+          <!--"tblCityCounts" is dynamically added here-->
+        </div>
+      </div>
+
+      <div class="row" style="height:50%; width:100%" ;>
+        <div class="col-9">
+          <div id="calendar"></div>
+        </div>
+
+        <div class="col-3">
+          <div class="card" style="width: 18rem; margin-top: 8rem">
+            <!--<img class="card-img-top" src="..." alt="Card image cap">-->
+            <div class="card-body">
+              <h5 id="venueName" class="card-title"></h5>
+
+              <p id="secificVenueAddress" class="card-text"></p>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li id="ticketmasterEventCount" class="list-group-item"></li>
+              <li id="stubhubEventCount" class="list-group-item"></li>
+              <!--TODO: add more details / summary stats and maybe picture of venue-->
+              <!--<li class="list-group-item">Vestibulum at eros</li>-->
+            </ul>
+            <!--<div class="card-body">
+                            <a href="#" class="card-link">Card link</a>
+                            <a href="#" class="card-link">Another link</a>
+                        </div>-->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      //check which API we are using to source data
+      //TODO: comeback and make this based off node environment var
+      //var domain = "";
+      //var node_js_domain = "https://localhost:4000/api/";
+      //var dotnet_Core_WebAPI_domain = "https://localhost:44350/api/testapi/"
+
+      async function getDomain() {
+        var node_js_domain = "http://localhost:4000/api/";
+        // var dotnet_Core_WebAPI_domain = "https://localhost:44350/api/testapi/";
+        // var node_js_domain_status = await fetch(node_js_domain).then((res) => res.status).catch((err) => err);
+        //  console.log(node_js_domain_status);
+        //         //var dotnet_Core_WebAPI_domain_status = await fetch().then((res) => { res.status }).catch((err) => { console.log(err) });
+
+        //         //var domain = () => { node_js_domain ? node_js_domain : dotnet_Core_WebAPI_domain };
+        //         //domain ? null : console.log('no domain')
+        // console.log(domain);
+        //  //TODO://comeback properly encode
+        // var domain =  node_js_domain_status == 200 ? node_js_domain : dotnet_Core_WebAPI_domain ;
+
+        //check if domain is a node server, if so queryToRoute(str) else return the string as it was
+        //var queryOrRoute = node_js_domain == domain ? queryToRoute : (str) => (str);
+        //   var useRoutingParams = node_js_domain == domain ? true : false
+        var useRoutingParams = true;
+
+        //initial full-calendar as a global variable
+        var calendarEl = document.getElementById("calendar");
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+          plugins: ["interaction", "dayGrid", "timeGrid"],
+          defaultView: "dayGridMonth",
+          header: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay"
+          },
+          eventRender: function(info) {
+            var tooltip = new Tooltip(info.el, {
+              //title: info.event.extendedProps.dataSource,
+              title:
+                "<div>" +
+                "<p>" +
+                info.event.title +
+                "</p>" +
+                "<p> Min Cost: " +
+                info.event.extendedProps.minCost +
+                "</p>" +
+                "<p> Max Cost: " +
+                info.event.extendedProps.maxCost +
+                "</p>" +
+                "</div> ",
+              html: true,
+              placement: "top",
+              trigger: "hover",
+              container: "body"
+            });
+          }
+          //eventClick: function(event, jsEvent, view) {},
+        });
+
+        //render the calendar on doc ready
+        $(document).ready(function() {
+          calendar.render();
+        });
+
+        //inserts html to bootstrap card
+        function fillCard(data) {
+          //select some information about the data
+          stubhubEventCount = alasql(
+            "select count(1) as stubhubEventCount from ? where dataSource='stubhub' group by dataSource",
+            [data]
+          )[0].stubhubEventCount;
+          //insert some html with selected information to a card
+          $("#stubhubEventCount").html(
+            '<p style="font-weight:bold">StubHub Events: ' +
+              stubhubEventCount +
+              "</p>"
+          );
+
+          ticketmasterEventCount = alasql(
+            "select count(1) as ticketmasterEventCount from ? where dataSource='ticketmaster' group by dataSource",
+            [data]
+          )[0].ticketmasterEventCount;
+          $("#ticketmasterEventCount").html(
+            '<p style="font-weight:bold">Ticketmaster Events: ' +
+              ticketmasterEventCount +
+              "</p>"
+          );
+        }
+
+        //updates full-calendar.js with new event data
+        function updateCalendar(data) {
+          //clear calendar of old events
+          calendar.removeAllEvents();
+          //color code event based on ticket provider
+          const getColor = x => {
+            if (x["dataSource"] == "ticketmaster") {
+              return "RoyalBlue";
+            } else if (x["dataSource"] == "stubhub") {
+              return "DarkOrange";
+            } else {
+              return "grey";
+            }
+          };
+          //have calendar navigate to earliest event in data note this assumes API returns ordered data
+          calendar.gotoDate(
+            data.filter(x => x["Event Date"].length != null)[0]["Event Date"]
+          );
+          //add events add their properties to calendar
+          data.map(x =>
+            calendar.addEvent({
+              color: getColor(x),
+              textColor: "white",
+              title: x["Event Name"],
+              start: x["Event Date"],
+              extendedProps: {
+                dataSource: x["dataSource"],
+                minCost: x["Min Cost"],
+                maxCost: x["Max Cost"]
+              }
+            })
+          );
+        }
+
+        //get event data from api for user selected venue, update page accordingly
+        function getVenueEvents(venue, dataSource) {
+          //  console.log(queryOrRoute(domain + "GetSpecificVenueSummary?venueName=" + venue + "&dataSource=" + dataSource))
+          d3.json(
+            domain +
+              "GetSpecificVenueSummary/" +
+              (useRoutingParams
+                ? `${venue}/${dataSource}`
+                : `venueName=${venue}"&dataSource=${dataSource}`)
+          ).then(function(data) {
+            //fill card with info about venue and its events
+            fillCard(data);
+            //set events on calendar to that of the user selected venue
+            updateCalendar(data);
+          });
+        }
+
+        //gets adderres of specific venue based on the venues name, inserts result to element text
+        function getVenueAddress(venue) {
+          $("#venueName").text(venue);
+          d3.json(
+            domain +
+              (useRoutingParams
+                ? "selectedVenueAddress/" + venue
+                : "selectedVenueAddress?venueName=" + venue)
+          ).then(function(data) {
+            $("#secificVenueAddress")
+              .first()
+              .text(
+                alasql(
+                  "select ( ([address1] + ' ') + ([address2] + ' ') + ([city] + ', ') + ([state] + ' ') + [postalCode] ) as  [address]  from ?  ",
+                  [data]
+                )[0].address
+              );
+          });
+        }
+
+        //adds venues to to leaflet map
+        function addVenueCitys(data, map) {
+          //clear old venues
+          console.log(data);
+          d3.selectAll("#map svg>g *").remove();
+
+          //add venues with attributes based on data to map
+          data.forEach(function(itm) {
+            if (itm.latitude && itm.longitude) {
+              if (itm.dataSource == "ticketmaster") {
+                itm.color = "RoyalBlue";
+              } else if (itm.dataSource == "stubhub") {
+                itm.color = "DarkOrange";
+              } else {
+                itm.color = "purple";
+              }
+              var circle = L.circle([itm.latitude, itm.longitude], {
+                color: itm.color,
+                fillColor: itm.color,
+                fillOpacity: 0.5,
+                radius: 500 //itm.circSize
+              }).addTo(map);
+              circle.bindPopup(itm.name);
+              //add tooltip to venues
+              circle.on("mouseover", function(e) {
+                this.openPopup();
+              });
+              circle.on("mouseout", function(e) {
+                this.closePopup();
+              });
+              //update page based on selected venue
+              circle.on("click", function() {
+                getVenueAddress(itm.name);
+                getVenueEvents(itm.name, itm.dataSource);
+              });
+            }
+          });
+        }
+
+        //initializes leaflet map on page and sets it to M.A. cooridinates
+        function inititalize_MA_map(elementId) {
+          var map = new L.map(elementId).setView(
+            new L.LatLng(41.98, -71.3824),
+            8
+          );
+          var openStreetMap = new L.tileLayer(
+            "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+            {
+              attribution:
+                'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+              minZoom: 1,
+              maxZoom: 18,
+              id: "mapbox/streets-v11",
+              accessToken:
+                "pk.eyJ1Ijoid2lsbGJveWRlbiIsImEiOiJjazVvdzA4cmEwMDVxM21xbzNiNGxyMGRvIn0.wZFONFwh4vNyRCjkViUg4w"
+            }
+          ).addTo(map);
+          map.addLayer(openStreetMap);
+          return map;
+        }
+
+        //get data on venues in MA, fill map, page title and city table accordingly
+        d3.json(domain + "GetCityVenues").then(function(data) {
+          //make page title based on data
+          $("#venueCount").text(data.length);
+
+          //insert html table "tblCityCounts" to page
+          alasql(
+            "select [city] as City, count(1) as [Venue Count] INTO HTML('#divCityCounts', {headers:true}) from ?  where latitude is not null and longitude is not null group by city order by [Venue Count] desc",
+            [data]
+          );
+          //table = $('#divCityCounts table').DataTable();
+          $("#divCityCounts table").prop("id", "tblCityCounts");
+          $("#divCityCounts table").prop(
+            "class",
+            "dataTable compact table-sm table-hover table-striped"
+          );
+          $("#divCityCounts table").css("max-height", "100%");
+
+          var map = inititalize_MA_map("map");
+          addVenueCitys(
+            alasql(
+              "select [name], latitude, longitude, dataSource from ? where latitude is not null and longitude is not null",
+              [data]
+            ),
+            map
+          );
+
+          //reset map to include all venues
+          $("btnResetTblCityCounts").on(
+            "click",
+            addVenueCitys(
+              alasql(
+                "select [name], latitude, longitude, dataSource from ? where latitude is not null and longitude is not null",
+                [data]
+              ),
+              map
+            )
+          );
+
+          //limit venues on map to that of user selected city
+          $("#tblCityCounts tbody").on("click", "tr", function() {
+            var d = $(this)[0].cells[0].innerText;
+            console.log(d);
+            console.log(data);
+            addVenueCitys(
+              alasql(
+                "select [name], latitude, longitude, dataSource from ? where latitude is not null and longitude is not null and city = '" +
+                  d +
+                  "'",
+                [data]
+              ),
+              map
+            );
+          });
+        });
+        return domain;
+      }
+      getDomain();
+    </script>
+  </body>
+</html>

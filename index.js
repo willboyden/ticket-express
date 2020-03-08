@@ -1,19 +1,23 @@
 const express = require("express");
 const app = express();
 const mysql = require("mysql");
-const sqlqry = require("mysql-mavents-bck");
+//const sqlqry = require("mysql-mavents");
+const sqlqry = require("./mysql-mavents");
 const cors = require("cors");
 //allows for environment variables to be set in .env file
 require("dotenv").config();
 
 cors("no cors");
 
+app.use(express.static("./wwwroot"));
+
 var whitelist = [
   "https://localhost:44305",
   "https://localhost:44301",
   "https://localhost:44350",
   "https://localhost:4435",
-  "https://localhost44350:"
+  "https://localhost:44350:",
+  "http://localhost:4000;"
 ];
 var corsOptionsDelegate = function(req, callback) {
   var corsOptions;
@@ -47,8 +51,8 @@ getQueryResultAsync = async function(sqlstr) {
       if (rows === undefined) {
         console.log(sqlstr);
         reject(new Error("Error rows is undefined"));
-        console.log(err);
-        res.send("sorry had trouble finding that");
+        //      console.log(err);
+        // res.send("sorry had trouble finding that");
       } else {
         resolve(rows);
       }
@@ -58,175 +62,85 @@ getQueryResultAsync = async function(sqlstr) {
 
 //function for http response with the result of query
 respondQryResultAsync = async function(req, res, func, reqParams) {
+  // console.log(func);
   getQueryResultAsync(func(reqParams))
     .then(function(results) {
-      console.log(func(reqParams));
+      //    console.log(func(reqParams));
       res.send(results);
     })
     .catch(function(err) {
       console.log("Promise rejection error: " + err);
-      console.log(results);
+
+      //     console.log(results);
       res.send("oops");
     });
 };
 
 //run at domain
 app.get("/api/", cors(corsOptionsDelegate), async (req, res) => {
+  // console.log(sqlqry.GetSpecificTicketmasterVenueSummary);
   res.send("Welcome to the Node.js maVents api");
 });
 
-//Http Get Methods, should follow this options param pattern
-app.get("/api/genreSummary/", cors(corsOptionsDelegate), async (req, res) => {
-  respondQryResultAsync(req, res, sqlqry.getTicketMasterEventsByGenre);
+app.get("/api/stubhubEvents/", cors(corsOptionsDelegate), async (req, res) => {
+  respondQryResultAsync(req, res, sqlqry.stubhubEvents);
 });
 app.get(
-  "/api/genreSummary/:genre",
+  "/api/stubhubEvents/:venueName",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResultAsync(
-      req,
-      res,
-      sqlqry.getTicketMasterEventsByGenre,
-      req.params.genre
-    );
+    respondQryResultAsync(req, res, sqlqry.stubhubEvents, req.params.venueName);
   }
 );
 
-app.get("/api/venueSummary/", cors(corsOptionsDelegate), async (req, res) => {
-  respondQryResultAsync(req, res, sqlqry.getVenueSummary);
-});
-
 app.get(
-  "/api/venueSummary/:venueName",
+  "/api/ticketmasterEvents/",
+  cors(corsOptionsDelegate),
+  async (req, res) => {
+    respondQryResultAsync(req, res, sqlqry.ticketmasterEvents);
+  }
+);
+app.get(
+  "/api/ticketmasterEvents/:venueName",
   cors(corsOptionsDelegate),
   async (req, res) => {
     respondQryResultAsync(
       req,
       res,
-      sqlqry.getVenueSummary,
+      sqlqry.ticketmasterEvents,
       req.params.venueName
     );
   }
 );
 
-app.get(
-  "/api/GetSpecificStubhubVenueSummary/",
-  cors(corsOptionsDelegate),
-  async (req, res) => {
-    respondQryResultAsync(req, res, sqlqry.GetSpecificStubhubVenueSummary);
-  }
-);
-app.get(
-  "/api/GetSpecificStubhubVenueSummary/:venueName",
-  cors(corsOptionsDelegate),
-  async (req, res) => {
-    respondQryResultAsync(
-      req,
-      res,
-      sqlqry.GetSpecificStubhubVenueSummary,
-      req.params.venueName
-    );
-  }
-);
-
-app.get(
-  "/api/GetSpecificTicketmasterVenueEventSummary/",
-  cors(corsOptionsDelegate),
-  async (req, res) => {
-    respondQryResultAsync(
-      req,
-      res,
-      sqlqry.GetSpecificTicketmasterVenueEventSummary
-    );
-  }
-);
-app.get(
-  "/api/GetSpecificTicketmasterVenueEventSummary/:venueName",
-  cors(corsOptionsDelegate),
-  async (req, res) => {
-    respondQryResultAsync(
-      req,
-      res,
-      sqlqry.GetSpecificTicketmasterVenueEventSummary,
-      req.params.venueName
-    );
-  }
-);
-
-app.get("/api/GetCityVenues/", cors(corsOptionsDelegate), async (req, res) => {
-  respondQryResultAsync(req, res, sqlqry.GetCityVenues);
+app.get("/api/cityVenues/", cors(corsOptionsDelegate), async (req, res) => {
+  respondQryResultAsync(req, res, sqlqry.cityVenues);
 });
 //for now this is the same as if you give it a parameter
 app.get(
-  "/api/GetCityVenues/:includeNulls",
+  "/api/cityVenues/:includeNulls",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResultAsync(
-      req,
-      res,
-      sqlqry.GetCityVenues,
-      req.params.includeNulls
-    );
+    respondQryResultAsync(req, res, sqlqry.cityVenues, req.params.includeNulls);
+  }
+);
+
+//works
+app.get("/api/venueAddress/", cors(corsOptionsDelegate), async (req, res) => {
+  respondQryResultAsync(req, res, sqlqry.venueAddress);
+});
+app.get(
+  "/api/venueAddress/:venueName",
+  cors(corsOptionsDelegate),
+  async (req, res) => {
+    respondQryResultAsync(req, res, sqlqry.venueAddress, req.params.venueName);
   }
 );
 
 app.get(
-  "/api/GetSpecificStubhubVenueSummary/",
+  "/api/venueEvents/:venueName/:dataSource",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResultAsync(req, res, sqlqry.GetSpecificStubhubVenueSummary);
-  }
-);
-//for now this is the same as if you give it a parameter
-app.get(
-  "/api/GetSpecificStubhubVenueSummary/:venueName",
-  cors(corsOptionsDelegate),
-  async (req, res) => {
-    respondQryResultAsync(
-      req,
-      res,
-      sqlqry.GetSpecificStubhubVenueSummary,
-      req.params.venueName
-    );
-  }
-);
-
-app.get(
-  "/api/GetSpecificVenueSummary/:venueName/:dataSource",
-  cors(corsOptionsDelegate),
-  async (req, res) => {
-    respondQryResultAsync(req, res, sqlqry.GetSpecificVenueSummary, req.params);
-  }
-);
-app.get(
-  "/api/GetSpecificVenue/:venueName/:dataSource",
-  cors(corsOptionsDelegate),
-  async (req, res) => {
-    respondQryResultAsync(req, res, sqlqry.GetSpecificVenue, req.params);
-  }
-);
-
-app.get(
-  "/api/selectedStubhubVenueEvent/:venueName",
-  cors(corsOptionsDelegate),
-  async (req, res) => {
-    respondQryResultAsync(
-      req,
-      res,
-      sqlqry.selectedStubhubVenueEvent,
-      req.params.venueName
-    );
-  }
-);
-app.get(
-  "/api/GetSpecificVenue/:venueName",
-  cors(corsOptionsDelegate),
-  async (req, res) => {
-    respondQryResultAsync(
-      req,
-      res,
-      sqlqry.GetSpecificVenueSummary,
-      req.params.venueName
-    );
+    respondQryResultAsync(req, res, sqlqry.venueEvents, req.params);
   }
 );

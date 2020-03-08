@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+            integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+            crossorigin=""></script>
+
+
+    <!--<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <style>
+        #map {
+            width: 960px;
+            height: 500px;
+        }
+    </style>
+
+    <script>
+        function createMap(data) {
+            // Use OpenStreetMap tiles and attribute them
+            var map = new L.map('map').setView(new L.LatLng(41.98, -71.3824), 8);;
+
+            //var openStreetMap = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            var cartodbAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>';
+            //var openStreetMap = new L.TileLayer(openStreetMap, {
+            //    minZoom: 2,
+            //    maxZoom: 16,
+            //    attribution: cartodbAttribution,
+            //    tileSize: 256
+            //});
+            var openStreetMap = new L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                maxZoom: 18,
+                id: 'mapbox/streets-v11',
+                accessToken: 'pk.eyJ1Ijoid2lsbGJveWRlbiIsImEiOiJjazVvdzA4cmEwMDVxM21xbzNiNGxyMGRvIn0.wZFONFwh4vNyRCjkViUg4w'
+            }).addTo(map);
+
+            map.addLayer(openStreetMap);
+            console.log("good")
+            //var circle = L.circle([42.48509, Number(-71)], {
+            //        color: 'red',
+            //        fillColor: '#f03',
+            //        fillOpacity: 0.5,
+            //        radius: 1000
+            //    }).addTo(map);
+
+            data.forEach(function (itm) {
+                if ((600 * itm.numberOfVenues)<3000) {
+                    itm.circSize = 600 * itm.numberOfVenues
+                } else {
+                    itm.circSize = 3000
+                }
+                console.log(itm.latitude)
+                console.log(itm.longitude)
+                //L.circle(itm.latitude, itm.longitude)
+                var marker = L.marker([itm.latitude, Number(-50)]).addTo(map);
+                var circle = L.circle([itm.latitude, itm.longitude], {
+                    color: 'red',
+                    fillColor: '#f03',
+                    fillOpacity: 0.5,
+                    radius: itm.circSize
+                }).addTo(map);
+                circle.bindPopup(itm.numberOfVenues.toString());
+            });
+        }
+
+
+        d3.json('https://localhost:44350/api/testapi/GetTicketMasterVenueCountAndLocation')
+            .then(function (data) {
+                console.log(data);
+                createMap(data);
+            });
+
+
+
+    </script>
+
+</head>
+
+    <body>
+        <h1>Event Venues</h1>
+        <div id="map">
+    </body>
+
+
+
+</html>
+
+
+

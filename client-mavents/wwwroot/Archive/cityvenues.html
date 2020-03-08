@@ -1,0 +1,339 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script src="lib/jquery/dist/jquery.js" ></script>
+
+    <!--<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="js/createDataTables.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-basic-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.22.0/pivot.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.22.0/plotly_renderers.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.13.0/pivot.min.css" />-->
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+
+
+
+    <script type='text/javascript' src='https://s3.amazonaws.com/dynatable-docs-assets/js/jquery.dynatable.js'></script>
+
+
+    <script src="//cdn.jsdelivr.net/alasql/0.2/alasql.min.js"></script>
+
+    <!--BootstrapCDN-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="lib/bootstrap/dist/js/bootstrap.min.js"></script>
+
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+            integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+            crossorigin=""></script>
+
+
+    <!--<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <style>
+
+        /*html {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        *, *:before, *:after {
+            -webkit-box-sizing: inherit;
+            -moz-box-sizing: inherit;
+            box-sizing: inherit;
+        }*/
+
+        /*html, body {
+          height: 100%;
+          padding: 0;
+          margin: 0;
+          display: block;
+        }*/
+
+        #tblCityCounts tbody {
+            cursor: pointer
+        }
+
+
+        .container {
+            height: 100%;
+            /*display: -webkit-box;
+         display: -ms-flexbox;
+         display: flex;
+         -webkit-box-orient: vertical;
+         -webkit-box-direction: normal;
+             -ms-flex-direction: column;
+                 flex-direction: column;*/
+        }
+
+        .header {
+            -webkit-box-flex: 0;
+            -ms-flex: 0 0 auto;
+            flex: 0 0 auto;
+            padding: 0 1rem;
+        }
+
+        .title {
+            /* Fallback for calc / vmin */
+            font-size: 2rem;
+            font-size: calc( 2vmin + 1rem);
+        }
+
+        .map-container {
+            height: 100%;
+            
+            /*padding: 0px 1rem 1rem 1rem;
+            padding: 0px 1vmin 1vmin 1vmin;*/
+        }
+
+        .map-frame {
+            height: 100%;
+            width: 100%;
+            /*   We use outline over border as has issues in some cases */
+            outline: 1px solid black;
+        }
+
+        #map {
+            height: 100%;
+        }
+
+        /*
+        Support for browsers that DON'T support Flexbox uses 100% height on the map-container defined above.
+        Map will at least render, for the small amount of browsers that DON'T support flexbox. Users will just have to scroll abit ¯\_(ツ)_/¯
+        */
+        @supports (display: flex) {
+            .map-container {
+                height: 100%;
+                /*-webkit-box-flex: 1;
+                -ms-flex: 1 0 auto;
+                flex: 1 0 auto;*/
+            }
+
+            .map-frame {
+                -webkit-box-flex: 1;
+                -ms-flex: 1 0 auto;
+                flex: 1 0 auto;
+            }
+        }
+    </style>
+
+</head>
+
+<body style="background-color: lightgoldenrodyellow;">
+
+    <div class="container">
+        <div class="row" style="height:50%; width:100%" ;>
+            <badge class="badge badge-primary">
+                <h1>City's with Event Venues</h1>
+            </badge>
+            <div class="col-9">
+
+                <div class="map-container">
+                    <div class="map-frame">
+                        <div id="map" class="MAmap"></div>
+                    </div>
+                </div>
+
+            </div>
+            <div id="divCityCounts" class="col-3">
+                <!--<table id="tblCityCounts" class="table"></table>-->
+            </div>
+        </div>
+
+
+
+        <div class="row-content-center" style="padding:top 100px; height:10%; width:100%" ;>
+            <div class="col-12">
+                <div id="secificVenueAddress">
+                    <badge class="badge badge-secondary">
+                        <h5></h5>
+                    </badge>
+                </div>
+
+            </div>
+        </div>
+        <div id="divSelectedVenue" class="row" style="width: 100%; max-height: 25rem;overflow-y: scroll;">
+
+            <div class="col-6" style="background-color: skyblue;">
+                <badge class="badge badge-secondary">
+                    <h6>
+                        stubhub
+                    </h6>
+                </badge>
+                <div id="stubhubSpecificVenueEvents" class="table-responsive">
+                    <!--<table id="tblCityCounts" class="table"></table>-->
+                </div>
+            </div>
+                <div class="col-6" style="background-color: lightcoral;">
+
+                    <badge class="badge badge-secondary">
+                        <h6>
+                            ticketmaster
+                        </h6>
+                    </badge>
+
+                    <div id="ticketmasterSpecificVenueEvents" class="table-responsive">
+                        <!--<table id="tblCityCounts" class="table"></table>-->
+                    </div>
+                </div>
+
+
+        </div>
+    </div>
+
+    <script>
+        function inititalIze_MA_map(elementId) {
+
+            var map = new L.map(elementId).setView(new L.LatLng(41.98, -71.3824), 8);;
+
+            var openStreetMap = new L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                minZoom: 1,
+                maxZoom: 18,
+                id: 'mapbox/streets-v11',
+                accessToken: 'pk.eyJ1Ijoid2lsbGJveWRlbiIsImEiOiJjazVvdzA4cmEwMDVxM21xbzNiNGxyMGRvIn0.wZFONFwh4vNyRCjkViUg4w'
+            }).addTo(map);
+
+            map.addLayer(openStreetMap);
+            return map;
+        }
+    </script>
+
+    <script>
+
+        function getCityCoordinates(city) {
+            console.log(alasql('select latitude, longitude from ? where latitude is not null and longitude is not null', [city]))
+        }
+
+        function getVenueEvents(venue, dataSource) {
+            console.log(venue)
+            //if ($('#divSelectedVenue table').length) {
+            //    $('#divSelectedVenue table').each(function () {
+            //        $(this).detach()
+            //    })
+            //}
+
+            d3.json("https://localhost:44350/api/testapi/GetSpecificVenue?venue=" + venue + "&dataSource=" + dataSource)
+                .then(function (data) {
+                    console.log(data)
+                    if (data.length == 2) {
+                        alasql("select * INTO HTML('#stubhubSpecificVenueEvents', {headers:true}) from ?  ", [data[0]])
+                        alasql("select * INTO HTML('#ticketmasterSpecificVenueEvents', {headers:true}) from ?  ", [data[1]])                           
+                    }
+                    else {
+                        if (dataSource == 'stubhub') {
+                            alasql("select * INTO HTML('#stubhubSpecificVenueEvents', {headers:true}) from ?  ", [data])                                 
+                        } else if (dataSource == 'ticketmaster') {
+                            alasql("select * INTO HTML('#ticketmasterSpecificVenueEvents', {headers:true}) from ?  ", [data])
+                        }
+                    }
+                }
+            ).then(function () {
+                $('#divSelectedVenue table').each(function () {
+                console.log($(this))
+                $(this).prop('class', 'compact table-striped')
+                $(this).css('max-height', '100%')
+                $(this).css('overflow', 'scroll')
+                $(this).css('padding-top', '1rem')
+                $(this).DataTable()  
+            })
+            })
+                
+        }
+        function getVenueAddress(venue) {
+            console.log(venue)
+            d3.json("https://localhost:44350/api/testapi/GetSpecificVenueAddress?venue=" + venue)
+                .then(function (data) {
+                    console.log(data)
+                    alasql("select ( ([address1] + ' ') + ([address2] + ' ') + ([city] + ', ') + ([state] + ' ') + [postalCode] ) as  [address]  from ?  ", [data])[0].address
+                    $('#secificVenueAddress badge h5').text(
+                        alasql("select ( ([name] + ': ') +  ([address1] + ' ') + ([address2] + ' ') + ([city] + ', ') + ([state] + ' ') + [postalCode] ) as  [address]  from ?  ", [data])[0].address
+                    )
+                })
+        }
+
+        function addVenueCitys(data, map) {
+            d3.selectAll('#map svg>g *').remove()
+            data.forEach(function (itm) {
+
+                if (itm.dataSource == 'ticketmaster') {
+                    itm.color = 'red'
+                }
+                else if (itm.dataSource == 'stubhub') {
+                    itm.color = 'blue'
+                }
+                else {
+                    itm.color = 'purple'
+                }
+                var circle = L.circle([itm.latitude, itm.longitude], {
+                    color: itm.color,
+                    fillColor: '#f03',
+                    fillOpacity: 0.5,
+                    radius: 500//itm.circSize
+                }).addTo(map);
+                circle.bindPopup(itm.name);
+                circle.on("click", function () {
+                    getVenueAddress(itm.name)
+                    getVenueEvents(itm.name, itm.dataSource)
+
+                })
+            });
+        }
+
+
+
+
+    </script>
+
+    <script>
+        d3.json('https://localhost:44350/api/testapi/GetCityVenues')
+            .then(function (data) {
+
+                console.log(data);
+                alasql("select [city] as City, count(1) as [Venue Count] INTO HTML('#divCityCounts', {headers:true}) from ?  where latitude is not null and longitude is not null group by city order by count(1) desc", [data])
+                table = $('#divCityCounts table').DataTable();
+                $('#divCityCounts table').prop('id', 'tblCityCounts')
+                $('#divCityCounts table').prop('class', 'dataTable compact table-sm table-hover table-striped')
+
+                $('#tblCityCounts tbody').on('click', 'tr', function () {
+                    var d = table.cell(this, 0).data();
+                    console.log(d)
+                    addVenueCitys(
+                        alasql("select [name], latitude, longitude, dataSource from ? where latitude is not null and longitude is not null and city='" + d + "'", [data])
+                        , map
+                    )
+                });
+                var map = inititalIze_MA_map('map')
+                addVenueCitys(
+                    alasql("select [name], latitude, longitude, dataSource from ? where latitude is not null and longitude is not null", [data])
+                    , map
+                )
+                return data;
+            });
+
+    </script>
+
+
+</body>
+
+
+
+</html>
+
+
+

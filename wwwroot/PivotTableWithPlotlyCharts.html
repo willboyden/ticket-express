@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+
+    <script src="js/jquery-3.4.1.min.js"></script>
+
+    <script src="js/createDataTables.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-basic-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.22.0/pivot.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.22.0/plotly_renderers.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.13.0/pivot.min.css" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+            integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+            crossorigin=""></script>
+
+
+    <!--<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>-->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <style>
+        .MAmap {
+            width: 960px;
+            height: 500px;
+        }
+    </style>
+
+    <script>
+        
+        d3.json('https://localhost:44350/api/testapi/GetStubHubCityVenues')
+            .then(function (data) {
+                console.log(data)
+                $("#output").pivotUI(
+                    data, {
+                    rows: ["City", "Venue"],
+                    cols: ["smoker"],
+                    vals: ["tip", "total_bill"],
+                    aggregatorName: "Count",
+                    rendererName: "Table",
+                    renderers: $.extend(
+                        $.pivotUtilities.renderers,
+                        $.pivotUtilities.plotly_renderers
+                    )
+                });
+            });
+
+    </script>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+
+            <div class="col-12">
+                <div id="output"></div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+
+</body>
+
+
+
+</html>

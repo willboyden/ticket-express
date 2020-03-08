@@ -1,0 +1,83 @@
+﻿
+/*for fixed table headers(on table scroll)*/
+th {
+    position: sticky;
+    top: 0;
+    background: white;
+}
+
+.fc-day-grid-event .fc-content {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+#calendar {
+    max-width: 900px;
+    margin: 40px auto;
+}
+
+.dataTables_length {
+    display: none;
+}
+
+#tblCityCounts tbody {
+    cursor: pointer
+}
+
+#divSelectedVenue table {
+    font-size: .7em
+}
+
+.dataTables_paginate {
+    font-size: .5em
+}
+
+.dataTables_filter {
+    font-size: .6em
+}
+
+.dataTables_info {
+    font-size: .5em
+}
+
+.container {
+    height: 100%;
+}
+
+.header {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    padding: 0 1rem;
+}
+
+.title {
+    /* Fallback for calc / vmin */
+    font-size: 2rem;
+    font-size: calc( 2vmin + 1rem);
+}
+
+.map-container {
+    /*min-height: 33rem;*/
+    height: 100%;
+}
+
+.map-frame {
+    /*min-height: 33rem;*/
+    height: 100%;
+    width: 100%;
+    /*   We use outline over border as has issues in some cases */
+    outline: 1px solid black;
+}
+
+#map {
+    /*min-height: 33rem;*/
+    height: 100%;
+}
