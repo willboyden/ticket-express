@@ -6,8 +6,8 @@ var stubhubEvents = venueName => {
                             , minListPrice \`Min Cost\`  
                             , maxListPrice \`Max Cost\`   
                             , 'stubhub' as \`dataSource\`
-                           FROM tblNewStubhubVenueEvent ve   
-                            LEFT JOIN tblStubhubVenue v  on ve.venue_id = v.id   
+                           FROM tblnewstubhubvenueevent ve   
+                            LEFT JOIN tblstubhubvenue v  on ve.venue_id = v.id   
                            WHERE eventDate is not null    
                                AND  ${
                                  venueName
@@ -59,7 +59,7 @@ var ticketmasterEvents = venueName => {
 module.exports.ticketmasterEvents = ticketmasterEvents;
 //works
 //hmm mssql server has an INCLUDE_NULL_VALUES clause when returning json. How is that handled in this senario???
-var cityVenues = includeNulls => {
+var cityVenues = eventDate => {
   // Code here
   return `      
             WITH a as (
@@ -73,7 +73,13 @@ var cityVenues = includeNulls => {
                 LEFT JOIN \`tblStubHubCity\` c
                     ON v.city=c.city
                 WHERE id in(
-                    select distinct(venue_id)  from \`tblNewStubhubVenueEvent\`
+                    select distinct(venue_id)  from \`tblNewStubhubVenueEvent\`  
+                    ${
+                      eventDate
+                        ? `where CAST(\`eventDate\` as DATE) = '${eventDate}'`
+                        : ""
+                    }
+
                 )
 
                     UNION 
@@ -87,6 +93,11 @@ var cityVenues = includeNulls => {
                 FROM \`tblTicketmasterVenue\`
                 WHERE id in(
                     select distinct venue_id   from \`tblNewTicketmasterVenueEvent\`
+                    ${
+                      eventDate
+                        ? `where CAST(\`dates_start_dateTime\` as DATE) = '${eventDate}'`
+                        : ""
+                    }
                 )
 
             )

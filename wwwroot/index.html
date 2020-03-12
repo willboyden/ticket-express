@@ -48,25 +48,31 @@
   </head>
   <body>
     <div class="container">
-      <div
-        class="row"
-        style="height:50%; width:100%; max-height: 33rem;  min-height: 33rem; "
-      >
+      <div class="row">
         <div class="col-9">
           <h3 id="pageTitle">
             <!--text added dynamically-->
             <span id="venueCount"></span>
             Venues with Events Listed in Massachusetts
           </h3>
+          <button id="btnResetTblCityCounts">Reset Map</button>
+          <button id="btnStubhubFilter">Stub Hub</button>
+          <button id="btnTicketMasterFilter">Ticket Master</button>
+        </div>
+      </div>
+
+      <div
+        class="row"
+        style="height:50%; width:100%; max-height: 33rem;  min-height: 33rem; overflow: hidden; "
+      >
+        <div class="col-9">
+          <!-- <h3 id="pageTitle">
+            text added dynamically-->
+
           <!-- maps size can behave funny so just to be safe make sure it doesnt overflow on to the rest of the page -->
-          <div
-            class="row"
-            style="overflow:hidden; overflow-x: hidden; overflow-y: hidden;"
-          >
-            <div class="map-container">
-              <div class="map-frame">
-                <div id="map" class="MAmap"></div>
-              </div>
+          <div class="map-container">
+            <div class="map-frame">
+              <div id="map" class="MAmap"></div>
             </div>
           </div>
         </div>
@@ -76,12 +82,11 @@
           class="col-3"
           style="max-height: 33rem; overflow-y:scroll;"
         >
-          <button id="btnResetTblCityCounts"></button>
           <!--"tblCityCounts" is dynamically added here-->
         </div>
       </div>
 
-      <div class="row" style="height:50%; width:100%;">
+      <div class="row" style="height:50%; width:100%; background: white">
         <div class="col-9">
           <div id="calendar"></div>
         </div>
@@ -364,6 +369,28 @@
             addVenueCitys(
               alasql(
                 "select [name], latitude, longitude, dataSource from ? where latitude is not null and longitude is not null",
+                [data]
+              ),
+              map
+            )
+          );
+
+          $("btnStubhubFilter").on(
+            "click",
+            addVenueCitys(
+              alasql(
+                "select [name], latitude, longitude, dataSource from ? where latitude is not null and longitude is not null and dataSource = 'stubhub'",
+                [data]
+              ),
+              map
+            )
+          );
+
+          $("btnTicketMasterFilter").on(
+            "click",
+            addVenueCitys(
+              alasql(
+                "select [name], latitude, longitude, dataSource from ? where latitude is not null and longitude is not null and dataSource = 'ticketmaster'",
                 [data]
               ),
               map
