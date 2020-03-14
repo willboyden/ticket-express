@@ -11,7 +11,7 @@ require("dotenv").config();
 cors("no cors");
 app.use(compression());
 
-app.use(express.static("./wwwroot"));
+app.use(express.static("./build"));
 
 var whitelist = [
   "https://localhost:44305",
@@ -33,31 +33,34 @@ var corsOptionsDelegate = function(req, callback) {
   callback(null, corsOptions); // callback expects two parameters: error and options
 };
 
-const localConnection = mysql.createConnection({
-  host: process.env.localdbhost,
-  user: process.env.localdbuser,
-  password: process.env.localdbpassword,
-  database: process.env.localdbdatabase
+const lightsaleConnection = mysql.createConnection({
+  host: process.env.lightsaledbhost,
+  user: process.env.lightsaledbuser,
+  password: process.env.lightsaledbpassword,
+  database: process.env.lightsaledbdatabase,
+  port: 3306
 });
+// var connString =
+//   "mysql://express:Ocean2468#@ls-72718cbc1491523607dce5bcd6173f2b0d4897bf.c3zjlagatzuv.us-east-1.rds.amazonaws.com/mdb?charset=utf8_general_ci&timezone=-0700";
 
-// localConnection.connect(function(err) {
+// lightsaleConnection.connect(function(err) {
 //   if (err) throw err;
 //   console.log("Connected!");
-//   localConnection.end();
+//   lightsaleConnection.end();
 // });
 //dynamically get port environment variable (set outside of application)
-const port = process.env.PORT || 3000; //def to 3000 if envVar not set
-
+//const port = process.env.PORT || 3000; //def to 3000 if envVar not set
+const port = 3000;
 //app.listen(port, () => console.log(`listening on port ${port}`));
 app.listen(port, () => console.log(`listening on port ${port} testing ${""}`));
-
+console.log(process.env.lightsaledbhost);
 //function for getting generic Query, can be used with regular string as param
 getQueryResultAsync = async function(sqlstr) {
   return new Promise(function(resolve, reject) {
-    localConnection.query(sqlstr, function(err, rows) {
+    lightsaleConnection.query(sqlstr, function(err, rows) {
       if (rows === undefined) {
         console.log(sqlstr);
-        reject(new Error("Error rows is undefined"));
+        reject(new Error("Error rows is undefined" + err));
         //      console.log(err);
         // res.send("sorry had trouble finding that");
       } else {

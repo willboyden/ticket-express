@@ -6,8 +6,8 @@ var stubhubEvents = venueName => {
                             , minListPrice \`Min Cost\`  
                             , maxListPrice \`Max Cost\`   
                             , 'stubhub' as \`dataSource\`
-                           FROM tblnewstubhubvenueevent ve   
-                            LEFT JOIN tblstubhubvenue v  on ve.venue_id = v.id   
+                           FROM tblNewStubHubVenueEvent ve   
+                            LEFT JOIN tblStubhubVenue v  on ve.venue_id = v.id   
                            WHERE eventDate is not null    
                                AND  ${
                                  venueName
@@ -30,7 +30,7 @@ var ticketmasterEvents = venueName => {
                 , \`priceRanges_max\` as \`maxTicketCost\`  
                 , \`priceRanges_min\` as \`minTicketCost\` 
                 , CAST(\`dates_start_dateTime\` as DATE) as \`Event Date\`  
-                  FROM tblNewTicketmasterVenueEvent ve  
+                  FROM tblNewTicketMasterVenueEvent ve  
                 -- filter to only include results from nost recent scrape      
             ) 
             SELECT  
@@ -61,9 +61,7 @@ module.exports.ticketmasterEvents = ticketmasterEvents;
 //hmm mssql server has an INCLUDE_NULL_VALUES clause when returning json. How is that handled in this senario???
 var cityVenues = eventDate => {
   // Code here
-  return `      
-            WITH a as (
-                SELECT 
+  return `WITH a AS ( SELECT 
                       v.\`name\`
                     , v.\`city\`  
                     , c.\`latitude\`
@@ -73,17 +71,14 @@ var cityVenues = eventDate => {
                 LEFT JOIN \`tblStubHubCity\` c
                     ON v.city=c.city
                 WHERE id in(
-                    select distinct(venue_id)  from \`tblNewStubhubVenueEvent\`  
+                    select distinct(venue_id)  from \`tblNewStubHubVenueEvent\`  
                     ${
                       eventDate
                         ? `where CAST(\`eventDate\` as DATE) = '${eventDate}'`
                         : ""
                     }
-
                 )
-
-                    UNION 
-                
+                    UNION                 
                 SELECT
                     \`name\`
                     ,\`city\`
@@ -92,23 +87,20 @@ var cityVenues = eventDate => {
                     , 'ticketmaster' as dataSource
                 FROM \`tblTicketmasterVenue\`
                 WHERE id in(
-                    select distinct venue_id   from \`tblNewTicketmasterVenueEvent\`
+                    select distinct venue_id   from \`tblNewTicketMasterVenueEvent\`
                     ${
                       eventDate
                         ? `where CAST(\`dates_start_dateTime\` as DATE) = '${eventDate}'`
                         : ""
                     }
                 )
-
             )
-            , b as (
-
-                select \`name\`
+            , b as ( select 
+                \`name\`
                 , count(1) as duplicate
                 , min(dataSource) as dataSource 
                 from a 
                 group by \`name\`
-
             ), multiple as (
                 select 
                      a.\`name\`
@@ -130,8 +122,7 @@ var cityVenues = eventDate => {
             UNION
             select * from multiple 
             WHERE dSource != 'multiple'
-            AND \`name\` NOT LIKE  '%Parking Lots' 
-        `;
+            AND \`name\` NOT LIKE  '%Parking Lots'`;
 };
 module.exports.cityVenues = cityVenues;
 
@@ -175,7 +166,7 @@ var events = venueName => {
                     , ve.\`minListPrice\` \`Min Cost\`
                     , ve.\`maxListPrice\` \`Max Cost\`
                     , 'stubhub' as dataSource
-                    FROM \`tblNewStubhubVenueEvent\` ve
+                    FROM \`tblNewStubHubVenueEvent\` ve
                     LEFT JOIN \`tblStubhubVenue\` v
                     on ve.venue_id = v.id
                     WHERE  eventDate is not null
@@ -234,7 +225,7 @@ var venueEventsMultiVender = venueName => {
     , \`priceRanges_min\` as \`minTicketCost\`
     , CAST(\`dates_start_dateTime\` as DATE) as \`Event Date\`
     , 'ticketmaster' as \`dataSource\`
-      FROM tblNewTicketmastervenueEvent ve
+      FROM tblNewTicketMasterVenueEvent ve
     -- filter to only include results from nost recent scrape
   )
   SELECT
@@ -255,7 +246,7 @@ var venueEventsMultiVender = venueName => {
         , minListPrice as \`Min Cost\`
         , maxListPrice as \`Max Cost\`
         , 'stubhub' as \`dataSource\` 
-         FROM tblNewStubhubvenueEvent ve2
+         FROM tblNewStubHubVenueEvent ve2
         LEFT JOIN tblStubhubvenue v2  on ve2.venue_id = v2.id
          WHERE eventDate is not null
          ${venueName ? " and v2.`name` = '" + venueName + "'" : ""}` +
