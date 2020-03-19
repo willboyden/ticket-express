@@ -51,9 +51,6 @@ const lightsaleConnection = mysql.createConnection({
   port: 3306
 });
 
-// var connString =
-//   "mysql://express:Ocean2468#@ls-72718cbc1491523607dce5bcd6173f2b0d4897bf.c3zjlagatzuv.us-east-1.rds.amazonaws.com/mdb?charset=utf8_general_ci&timezone=-0700";
-
 //check connection
 // lightsaleConnection.connect(function(err) {
 //   if (err) throw err;
