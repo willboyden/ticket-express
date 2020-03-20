@@ -1,7 +1,6 @@
 const express = require("express");
 const app = express();
 const mysql = require("mysql");
-const fetch = require("node-fetch");
 const alasql = require("alasql");
 //const sqlqry = require("mysql-mavents");
 const sqlqry = require("./mysql-mavents");
@@ -136,26 +135,6 @@ var sqlqueries = {
   venueAddress: sqlqry.venueAddress()
 };
 
-//initialize this to the sql values so we dont error out if Redis has not been set
-// var sqlresults = {
-//   cityVenues: getQueryResultAsync(sqlqry.cityVenues()).then(results => {
-//     return results;
-//   }),
-//   stubhubEvents: getQueryResultAsync(sqlqry.stubhubEvents()).then(results => {
-//     return results;
-//   }),
-//   ticketmasterEvents: getQueryResultAsync(sqlqry.ticketmasterEvents()).then(
-//     results => {
-//       return results;
-//     }
-//   ),
-//   events: getQueryResultAsync(sqlqry.events()).then(results => {
-//     return results;
-//   }),
-//   venueAddress: getQueryResultAsync(sqlqry.venueAddress()).then(results => {
-//     return results;
-//   })
-// };
 var sqlresults = {
   cityVenues: null,
   stubhubEvents: null,
@@ -163,6 +142,15 @@ var sqlresults = {
   events: null,
   venueAddress: null
 };
+const getSqlResult = keyParam => {
+  if (sqlresults[keyParam] == null) {
+    sqlresults[keyParam] = getQueryResultAsync(sqlqueries[keyParam]);
+    return getQueryResultAsync(sqlqueries[keyParam]);
+  } else {
+    return sqlresults[keyParam];
+  }
+};
+
 async function useRedisStore() {
   console.log("using Redis Store");
   Object.entries(sqlqueries).map(x => {
@@ -266,7 +254,7 @@ app.get(
   cors(corsOptionsDelegate),
   async (req, res) => {
     let data = JSON.parse([sqlresults["venueAddress"]]);
-    var filteredData = alasql("select * from ? where name =?", [
+    var filteredData = alasql("select * from ? where Venue =?", [
       data,
       req.params.venueName
     ]);
@@ -276,7 +264,7 @@ app.get(
 );
 
 app.get("/api/events/", cors(corsOptionsDelegate), async (req, res) => {
-  res.send(sqlresults["venueAddress"]);
+  res.send(getSqlResult("events"));
   //respondQryResultAsync(req, res, sqlqry.events);
 });
 app.get(
@@ -284,7 +272,7 @@ app.get(
   cors(corsOptionsDelegate),
   async (req, res) => {
     let data = JSON.parse([sqlresults["events"]]);
-    var filteredData = alasql("select * from ? where name = ?", [
+    var filteredData = alasql("select * from ? where Venue=?", [
       data,
       req.params.venueName
     ]);

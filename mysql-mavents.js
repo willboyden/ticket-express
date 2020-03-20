@@ -140,7 +140,8 @@ var events = venueName => {
                             FROM tblNewTicketMasterVenueEvent ve
                         )
                     SELECT 
-                        ve.\`Event\` as \`Event Name\`
+                        v.\`name\` as \`Venue\` 
+                        , ve.\`Event\` as \`Event Name\`
                         , ve.\`Event Date\`
                         -- , ve.\`genre_name\` as \`Genre\`
                         , ve.\`maxTicketCost\` as \`Min Cost\`
@@ -152,7 +153,8 @@ var events = venueName => {
                     WHERE ve.genre_name is not null
                         ${venueName ? "AND `name` = '" + venueName + "'" : ""} 
                     GROUP BY
-                        ve.\`Event\`
+                    v.\`name\`
+                        , ve.\`Event\`
                         , ve.\`Event Date\`
                         , ve.\`genre_name\`
                         , ve.\`maxTicketCost\`
@@ -161,7 +163,8 @@ var events = venueName => {
                             UNION
         
                     SELECT 
-                    ve.\`name\` \`Event Name\`
+                    v.\`name\` as \`Venue\` 
+                    , ve.\`name\` \`Event Name\`
                     , ve.eventDate \`Event Date\`
                     , ve.\`minListPrice\` \`Min Cost\`
                     , ve.\`maxListPrice\` \`Max Cost\`
