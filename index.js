@@ -99,27 +99,27 @@ respondQryResultAsync = async function(req, res, func, reqParams) {
 app.get("/api/cityVenues/redis", cors(corsOptionsDelegate), (req, res) => {
   // key to store results in Redis store
   console.log("hit");
-  const photosRedisKey = "user:cityVenues";
+  const cityVenuesRedisKey = "user:cityVenues";
 
   // Try fetching the result from Redis first in case we have it cached
-  return client.get(photosRedisKey, (err, photos) => {
+  return client.get(cityVenuesRedisKey, (err, cityVenues) => {
     // If that key exists in Redis store
-    if (photos) {
+    if (cityVenues) {
       console.log("success");
-      return res.json({ source: "cache", data: JSON.parse(photos) });
+      return res.json(JSON.parse(cityVenues));
     } else {
       // Key does not exist in Redis store
 
       // Fetch directly from remote api
       fetch("http://52.2.126.232/api/cityVenues/")
         .then(response => response.json())
-        .then(photos => {
+        .then(cityVenues => {
           // Save the  API response in Redis store,  data expire time in 3600 seconds, it means one hour
-          client.setex(photosRedisKey, 3600, JSON.stringify(photos));
+          client.setex(cityVenuesRedisKey, 3600, JSON.stringify(cityVenues));
 
           console.log("saved to redis?");
           // Send JSON response to client
-          return res.json({ source: "api", data: photos });
+          return res.json(cityVenues);
         })
         .catch(error => {
           // log error message
@@ -137,6 +137,33 @@ app.get("/api/", cors(corsOptionsDelegate), async (req, res) => {
   res.send("Welcome to the Node.js maVents api");
 });
 
+app.get(
+  "/api/stubhubEvents/redis",
+  cors(corsOptionsDelegate),
+  async (req, res) => {
+    const dataKey = "user:stubhubEvents";
+    return client.get(dataKey, (err, data) => {
+      // If that key exists in Redis store
+      if (data) {
+        return res.json(JSON.parse(data));
+      } else {
+        fetch("http://52.2.126.232/api/stubhubEvents/")
+          .then(response => response.json())
+          .then(data => {
+            // Save the  API response in Redis store,  data expire time in 3600 seconds, it means one hour
+            client.setex(dataKey, 3600, JSON.stringify(data));
+            console.log("saved to redis?");
+            // Send JSON response to client
+            return res.json(data);
+          })
+          .catch(error => {
+            return res.json(error.toString());
+          });
+      }
+    });
+    respondQryResultAsync(req, res, sqlqry.stubhubEvents);
+  }
+);
 app.get("/api/stubhubEvents/", cors(corsOptionsDelegate), async (req, res) => {
   respondQryResultAsync(req, res, sqlqry.stubhubEvents);
 });
