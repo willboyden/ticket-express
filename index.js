@@ -284,7 +284,7 @@ app.get(
   cors(corsOptionsDelegate),
   async (req, res) => {
     let data = JSON.parse([sqlresults["events"]]);
-    var filteredData = alasql("select * from ? where Event = ?", [
+    var filteredData = alasql("select * from ? where name = ?", [
       data,
       req.params.venueName
     ]);
