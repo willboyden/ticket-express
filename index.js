@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const mysql = require("mysql");
 const fetch = require("node-fetch");
+const alasql = require("alasql");
 //const sqlqry = require("mysql-mavents");
 const sqlqry = require("./mysql-mavents");
 const cors = require("cors");
@@ -43,13 +44,13 @@ var corsOptionsDelegate = function(req, callback) {
   callback(null, corsOptions); // callback expects two parameters: error and options
 };
 
-// const lightsaleConnection = mysql.createConnection({
-//   host: process.env.lightsaledbhost,
-//   user: process.env.lightsaledbuser,
-//   password: process.env.lightsaledbpassword,
-//   database: process.env.lightsaledbdatabase,
-//   port: 3306
-// });
+const lightsaleConnection = mysql.createConnection({
+  host: process.env.lightsaledbhost,
+  user: process.env.lightsaledbuser,
+  password: process.env.lightsaledbpassword,
+  database: process.env.lightsaledbdatabase,
+  port: 3306
+});
 
 //check connection
 // lightsaleConnection.connect(function(err) {
@@ -134,15 +135,34 @@ var sqlqueries = {
   events: sqlqry.events(),
   venueAddress: sqlqry.venueAddress()
 };
-//initialize this to the sql values if Redis has not been set
-var sqlresults = {
-  cityVenues: getQueryResultAsync(sqlqry.cityVenues()),
-  stubhubEvents: getQueryResultAsync(sqlqry.stubhubEvents()),
-  ticketmasterEvents: getQueryResultAsync(sqlqry.ticketmasterEvents()),
-  events: getQueryResultAsync(sqlqry.events()),
-  venueAddress: getQueryResultAsync(sqlqry.venueAddress())
-};
 
+//initialize this to the sql values so we dont error out if Redis has not been set
+// var sqlresults = {
+//   cityVenues: getQueryResultAsync(sqlqry.cityVenues()).then(results => {
+//     return results;
+//   }),
+//   stubhubEvents: getQueryResultAsync(sqlqry.stubhubEvents()).then(results => {
+//     return results;
+//   }),
+//   ticketmasterEvents: getQueryResultAsync(sqlqry.ticketmasterEvents()).then(
+//     results => {
+//       return results;
+//     }
+//   ),
+//   events: getQueryResultAsync(sqlqry.events()).then(results => {
+//     return results;
+//   }),
+//   venueAddress: getQueryResultAsync(sqlqry.venueAddress()).then(results => {
+//     return results;
+//   })
+// };
+var sqlresults = {
+  cityVenues: null,
+  stubhubEvents: null,
+  ticketmasterEvents: null,
+  events: null,
+  venueAddress: null
+};
 async function useRedisStore() {
   console.log("using Redis Store");
   Object.entries(sqlqueries).map(x => {
@@ -156,6 +176,7 @@ async function useRedisStore() {
       } else {
         console.log("getting result from sql");
         getQueryResultAsync(x["1"]).then(results => {
+          //set the redis key to that value and the sqlresults key to said value
           client.setex(x["0"], 3600, JSON.stringify(results));
           sqlresults[x["0"]] = data;
           // client.get(x["0"]),
@@ -173,33 +194,16 @@ async function useRedisStore() {
   return sqlresults;
 }
 
-// return client.get("events", (err, data) => {
-//   //  console.log(data);
-//   if (data){
-//     return data;
-//   }
-//   else{
-
-//   }
-
-// });
-
 var tt = "heeeee";
 //dynamically get port environment variable (set outside of application)
 //const port = process.env.PORT || 3000; //def to 3000 if envVar not set
 const port = 3000;
-//app.listen(port, () => console.log(`listening on port ${port}`));
 app.listen(port, async () => {
   console.log(`listening on port ${port} testing ${""}`);
   useRedisStore();
 });
 
 app.get("/api/cityVenues/", cors(corsOptionsDelegate), async (req, res) => {
-  // console.log("hi");
-  //const t = await cityVenues;
-
-  //console.log(sqlresults["stubhubEvents"].length < 1);
-  // console.log(tt);
   res.send(sqlresults["cityVenues"]);
 });
 //for now this is the same as if you give it a parameter
@@ -207,44 +211,10 @@ app.get(
   "/api/cityVenues/:eventDate",
   cors(corsOptionsDelegate),
   async (req, res) => {
+    alasql;
     respondQryResultAsync(req, res, sqlqry.cityVenues, req.params.eventDate);
   }
 );
-
-app.get("/api/cityVenues/redis", cors(corsOptionsDelegate), (req, res) => {
-  // key to store results in Redis store
-  console.log("hit");
-  const cityVenuesRedisKey = "user:cityVenues";
-
-  // Try fetching the result from Redis first in case we have it cached
-  return client.get(cityVenuesRedisKey, (err, cityVenues) => {
-    // If that key exists in Redis store
-    if (cityVenues) {
-      console.log("success");
-      return res.json(JSON.parse(cityVenues));
-    } else {
-      // Key does not exist in Redis store
-
-      // Fetch directly from remote api
-      fetch("http://52.2.126.232/api/cityVenues/")
-        .then(response => response.json())
-        .then(cityVenues => {
-          // Save the  API response in Redis store,  data expire time in 3600 seconds, it means one hour
-          client.setex(cityVenuesRedisKey, 3600, JSON.stringify(cityVenues));
-
-          console.log("saved to redis?");
-          // Send JSON response to client
-          return res.json(cityVenues);
-        })
-        .catch(error => {
-          // log error message
-          console.log(error);
-          // send error to the client
-          return res.json(error.toString());
-        });
-    }
-  });
-});
 
 //run at domain
 app.get("/api/", cors(corsOptionsDelegate), async (req, res) => {
@@ -252,33 +222,6 @@ app.get("/api/", cors(corsOptionsDelegate), async (req, res) => {
   res.send("Welcome to the Node.js maVents api");
 });
 
-app.get(
-  "/api/stubhubEvents/redis",
-  cors(corsOptionsDelegate),
-  async (req, res) => {
-    const dataKey = "user:stubhubEvents";
-    return client.get(dataKey, (err, data) => {
-      // If that key exists in Redis store
-      if (data) {
-        return res.json(JSON.parse(data));
-      } else {
-        fetch("http://52.2.126.232/api/stubhubEvents/")
-          .then(response => response.json())
-          .then(data => {
-            // Save the  API response in Redis store,  data expire time in 3600 seconds, it means one hour
-            client.setex(dataKey, 3600, JSON.stringify(data));
-            console.log("saved to redis?");
-            // Send JSON response to client
-            return res.json(data);
-          })
-          .catch(error => {
-            return res.json(error.toString());
-          });
-      }
-    });
-    respondQryResultAsync(req, res, sqlqry.stubhubEvents);
-  }
-);
 app.get("/api/stubhubEvents/", cors(corsOptionsDelegate), async (req, res) => {
   //respondQryResultAsync(req, res, sqlqry.stubhubEvents);
   res.send(sqlresults["stubhubEvents"]);
@@ -317,11 +260,18 @@ app.get("/api/venueAddress/", cors(corsOptionsDelegate), async (req, res) => {
   // respondQryResultAsync(req, res, sqlqry.venueAddress);
   res.send(sqlresults["venueAddress"]);
 });
+//use alasql to do an in memory query of our Redis Data
 app.get(
   "/api/venueAddress/:venueName",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResultAsync(req, res, sqlqry.venueAddress, req.params.venueName);
+    let data = JSON.parse([sqlresults["venueAddress"]]);
+    var filteredData = alasql("select * from ? where name =?", [
+      data,
+      req.params.venueName
+    ]);
+    res.send(filteredData);
+    // respondQryResultAsync(req, res, sqlqry.venueAddress, req.params.venueName);
   }
 );
 
@@ -333,7 +283,13 @@ app.get(
   "/api/events/:venueName",
   cors(corsOptionsDelegate),
   async (req, res) => {
-    respondQryResultAsync(req, res, sqlqry.events, req.params.venueName);
+    let data = JSON.parse([sqlresults["events"]]);
+    var filteredData = alasql("select * from ? where Event = ?", [
+      data,
+      req.params.venueName
+    ]);
+    res.send(filteredData);
+    //respondQryResultAsync(req, res, sqlqry.events, req.params.venueName);
   }
 );
 
