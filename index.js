@@ -48,7 +48,7 @@ const lightsaleConnection = mysql.createConnection({
   user: process.env.lightsaledbuser,
   password: process.env.lightsaledbpassword,
   database: process.env.lightsaledbdatabase,
-  port: 3306
+  port: process.env.lightsaledbport
 });
 
 //check connection
@@ -167,6 +167,8 @@ async function useRedisStore() {
           //set the redis key to that value and the sqlresults key to said value
           client.setex(x["0"], 3600, JSON.stringify(results));
           sqlresults[x["0"]] = data;
+          if (data) {
+          }
           // client.get(x["0"]),
           //   (err, data) => {
           //     //  console.log(data);
@@ -188,7 +190,7 @@ var tt = "heeeee";
 const port = 3000;
 app.listen(port, async () => {
   console.log(`listening on port ${port} testing ${""}`);
-  useRedisStore();
+  await useRedisStore();
 });
 
 app.get("/api/cityVenues/", cors(corsOptionsDelegate), async (req, res) => {
