@@ -4,10 +4,12 @@ const mysql = require("mysql");
 const alasql = require("alasql");
 //const sqlqry = require("mysql-mavents");
 const sqlqry = require("./mysql-mavents");
+
 const cors = require("cors");
 var compression = require("compression");
 //allows for environment variables to be set in .env file
 require("dotenv").config();
+const { promisify } = require("util");
 
 cors("no cors");
 app.use(compression());
@@ -15,13 +17,16 @@ app.use(compression());
 app.use(express.static("./build"));
 
 const redis = require("redis");
+
 // create and connect redis client to local instance.
-const client = redis.createClient(6379);
+const client = redis.createClient(process.env.redisport, process.env.redisip);
+const getRedisAsync = promisify(client.get).bind(client);
 
 // echo redis errors to the console
 client.on("error", err => {
   console.log("Error " + err);
 });
+
 //console.log(client)
 var whitelist = [
   "https://localhost:44305",
@@ -63,7 +68,7 @@ getQueryResultAsync = async function(sqlstr) {
     console.log("getQueryResultAsync called");
     lightsaleConnection.query(sqlstr, function(err, rows) {
       if (rows === undefined) {
-        console.log(sqlstr);
+        // console.log(sqlstr);
         reject(new Error("Error rows is undefined" + err));
         //      console.log(err);
         // res.send("sorry had trouble finding that");
@@ -75,7 +80,7 @@ getQueryResultAsync = async function(sqlstr) {
     });
   });
 };
-console.log(sqlqry.cityVenues.toString());
+//console.log(sqlqry.cityVenues.toString());
 //function for http response with the result of query
 respondQryResultAsync = async function(req, res, func, reqParams) {
   // console.log(func);
@@ -89,41 +94,6 @@ respondQryResultAsync = async function(req, res, func, reqParams) {
       res.send("oops");
     });
 };
-
-async function createRedisStore() {
-  console.log("creating Redis Store");
-  getQueryResultAsync(sqlqry.stubhubEvents()).then(results => {
-    client.setex("stubhubEvents", 3600, JSON.stringify(results));
-    console.log("2");
-  });
-  getQueryResultAsync(sqlqry.ticketmasterEvents()).then(results => {
-    client.setex("ticketmasterEvents", 3600, JSON.stringify(results));
-    console.log("3");
-  });
-  getQueryResultAsync(sqlqry.events()).then(results => {
-    client.setex("events", 3600, JSON.stringify(results));
-    console.log("4");
-  });
-
-  getQueryResultAsync(sqlqry.venueAddress()).then(results => {
-    client.setex("venueAddress", 3600, JSON.stringify(results));
-    console.log("5");
-  });
-
-  getQueryResultAsync(sqlqry.venueEvents()).then(results => {
-    client.setex("venueEvents", 3600, JSON.stringify(results));
-    console.log("6");
-  });
-
-  // return x;
-}
-// var events = "";
-// var stubhubEvents = "";
-// var ticketmasterEvents = "";
-// var events = "";
-// var venueAddress = "";
-
-//var venueEvents = "";
 
 //2 objects with matching keys, this way we can set globals somewhat dynamically as we get back results
 //here we load values with
@@ -184,7 +154,6 @@ async function useRedisStore() {
   return sqlresults;
 }
 
-var tt = "heeeee";
 //dynamically get port environment variable (set outside of application)
 //const port = process.env.PORT || 3000; //def to 3000 if envVar not set
 const port = 3000;
@@ -194,6 +163,7 @@ app.listen(port, async () => {
 });
 
 app.get("/api/cityVenues/", cors(corsOptionsDelegate), async (req, res) => {
+  console.log(sqlresults["cityVenues"]);
   res.send(sqlresults["cityVenues"]);
 });
 //for now this is the same as if you give it a parameter
@@ -206,14 +176,11 @@ app.get(
   }
 );
 
-//run at domain
 app.get("/api/", cors(corsOptionsDelegate), async (req, res) => {
-  // console.log(sqlqry.GetSpecificTicketmasterVenueSummary);
   res.send("Welcome to the Node.js maVents api");
 });
 
 app.get("/api/stubhubEvents/", cors(corsOptionsDelegate), async (req, res) => {
-  //respondQryResultAsync(req, res, sqlqry.stubhubEvents);
   res.send(sqlresults["stubhubEvents"]);
 });
 app.get(
@@ -229,7 +196,6 @@ app.get(
   cors(corsOptionsDelegate),
   async (req, res) => {
     res.send(sqlresults["stubhubEvents"]);
-    // respondQryResultAsync(req, res, sqlqry.ticketmasterEvents);
   }
 );
 app.get(
@@ -244,7 +210,7 @@ app.get(
     );
   }
 );
-
+//#region
 //works
 app.get("/api/venueAddress/", cors(corsOptionsDelegate), async (req, res) => {
   // respondQryResultAsync(req, res, sqlqry.venueAddress);
@@ -267,7 +233,6 @@ app.get(
 
 app.get("/api/events/", cors(corsOptionsDelegate), async (req, res) => {
   res.send(getSqlResult("events"));
-  //respondQryResultAsync(req, res, sqlqry.events);
 });
 app.get(
   "/api/events/:venueName",
@@ -279,7 +244,6 @@ app.get(
       req.params.venueName
     ]);
     res.send(filteredData);
-    //respondQryResultAsync(req, res, sqlqry.events, req.params.venueName);
   }
 );
 
@@ -288,5 +252,53 @@ app.get(
   cors(corsOptionsDelegate),
   async (req, res) => {
     respondQryResultAsync(req, res, sqlqry.venueEvents, req.params);
+  }
+);
+//#endregion
+
+//Redis Endpoints
+app.get("/api/tblstubhubcity/", cors(corsOptionsDelegate), async (req, res) => {
+  getRedisAsync("tblstubhubcity")
+    .then(x => res.send(x))
+    .catch(console.error);
+});
+
+app.get(
+  "/api/tblstubhubvenue/",
+  cors(corsOptionsDelegate),
+  async (req, res) => {
+    getRedisAsync("tblstubhubvenue")
+      .then(x => res.send(x))
+      .catch(console.error);
+  }
+);
+
+app.get(
+  "/api/tblnewstubhubvenueevent/",
+  cors(corsOptionsDelegate),
+  async (req, res) => {
+    getRedisAsync("tblnewstubhubvenueevent")
+      .then(x => res.send(x))
+      .catch(console.error);
+  }
+);
+
+app.get(
+  "/api/tblticketmastervenue/",
+  cors(corsOptionsDelegate),
+  async (req, res) => {
+    getRedisAsync("tblticketmastervenue")
+      .then(x => res.send(x))
+      .catch(console.error);
+  }
+);
+
+app.get(
+  "/api/tblnewticketmastervenueevent/",
+  cors(corsOptionsDelegate),
+  async (req, res) => {
+    getRedisAsync("tblnewticketmastervenueevent")
+      .then(x => res.send(x))
+      .catch(console.error);
   }
 );

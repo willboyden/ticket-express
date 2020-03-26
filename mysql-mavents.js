@@ -6,8 +6,8 @@ var stubhubEvents = venueName => {
                             , minListPrice \`Min Cost\`  
                             , maxListPrice \`Max Cost\`   
                             , 'stubhub' as \`dataSource\`
-                           FROM tblNewStubHubVenueEvent ve   
-                            LEFT JOIN tblStubhubVenue v  on ve.venue_id = v.id   
+                           FROM tblnewstubhubvenueevent ve   
+                            LEFT JOIN tblstubhubvenue v  on ve.venue_id = v.id   
                            WHERE eventDate is not null    
                                AND  ${
                                  venueName
@@ -30,7 +30,7 @@ var ticketmasterEvents = venueName => {
                 , \`priceRanges_max\` as \`maxTicketCost\`  
                 , \`priceRanges_min\` as \`minTicketCost\` 
                 , CAST(\`dates_start_dateTime\` as DATE) as \`Event Date\`  
-                  FROM tblNewTicketMasterVenueEvent ve  
+                  FROM tblnewticketmastervenueevent ve  
                 -- filter to only include results from nost recent scrape      
             ) 
             SELECT  
@@ -41,7 +41,7 @@ var ticketmasterEvents = venueName => {
             , ve.\`minTicketCost\` as \`Max Cost\`  
             , 'ticketmaster' as \`dataSource\`
             FROM ve   
-              LEFT JOIN tblTicketmasterVenue v   
+              LEFT JOIN tblticketmastervenue v   
                 ON v.id = ve.venue_id 
               WHERE  ${venueName ? `v.name = '${venueName}'` : "1=1"} 
               GROUP BY   
@@ -67,11 +67,11 @@ var cityVenues = eventDate => {
                     , c.\`latitude\`
                     , c.\`longitude\`
                     , 'stubhub' as dataSource
-                FROM \`tblStubhubVenue\` v                          
-                LEFT JOIN \`tblStubHubCity\` c
+                FROM \`tblstubhubvenue\` v                          
+                LEFT JOIN \`tblstubhubcity\` c
                     ON v.city=c.city
                 WHERE id in(
-                    select distinct(venue_id)  from \`tblNewStubHubVenueEvent\`  
+                    select distinct(venue_id)  from \`tblnewstubhubvenueevent\`  
                     ${
                       eventDate
                         ? `where CAST(\`eventDate\` as DATE) = '${eventDate}'`
@@ -85,9 +85,9 @@ var cityVenues = eventDate => {
                     ,\`latitude\`
                     ,\`longitude\`
                     , 'ticketmaster' as dataSource
-                FROM \`tblTicketmasterVenue\`
+                FROM \`tblticketmastervenue\`
                 WHERE id in(
-                    select distinct venue_id   from \`tblNewTicketMasterVenueEvent\`
+                    select distinct venue_id   from \`tblnewticketmastervenueevent\`
                     ${
                       eventDate
                         ? `where CAST(\`dates_start_dateTime\` as DATE) = '${eventDate}'`
@@ -137,7 +137,7 @@ var events = venueName => {
                             , \`priceRanges_max\` as \`maxTicketCost\`
                             , \`priceRanges_min\` as \`minTicketCost\`
                             , CAST( \`dates_start_dateTime\` AS DATE) as \`Event Date\` 
-                            FROM tblNewTicketMasterVenueEvent ve
+                            FROM tblnewticketmastervenueevent ve
                         )
                     SELECT 
                         v.\`name\` as \`Venue\` 
@@ -148,7 +148,7 @@ var events = venueName => {
                         , ve.\`minTicketCost\` as \`Max Cost\`
                         , 'ticketmaster' as dataSource
                     FROM ve
-                    LEFT JOIN tblTicketmasterVenue v 
+                    LEFT JOIN tblticketmastervenue v 
                         ON v.id = ve.venue_id
                     WHERE ve.genre_name is not null
                         ${venueName ? "AND `name` = '" + venueName + "'" : ""} 
@@ -169,8 +169,8 @@ var events = venueName => {
                     , ve.\`minListPrice\` \`Min Cost\`
                     , ve.\`maxListPrice\` \`Max Cost\`
                     , 'stubhub' as dataSource
-                    FROM \`tblNewStubHubVenueEvent\` ve
-                    LEFT JOIN \`tblStubhubVenue\` v
+                    FROM \`tblnewstubhubvenueevent\` ve
+                    LEFT JOIN \`tblstubhubvenue\` v
                     on ve.venue_id = v.id
                     WHERE  eventDate is not null
                         ${
@@ -191,7 +191,7 @@ var venueAddress = venueName => {
             ,\`state\`
             ,\`address1\`
             ,\`address2\`
-        FROM \`tblTicketmasterVenue\`
+        FROM \`tblticketmastervenue\`
 
             UNION
 
@@ -202,7 +202,7 @@ var venueAddress = venueName => {
             ,\`state\`
             ,\`address1\`
             ,\`address2\`
-        FROM \`tblStubhubVenue\`
+        FROM \`tblstubhubvenue\`
     )
     select
         \`name\`
@@ -228,7 +228,7 @@ var venueEventsMultiVender = venueName => {
     , \`priceRanges_min\` as \`minTicketCost\`
     , CAST(\`dates_start_dateTime\` as DATE) as \`Event Date\`
     , 'ticketmaster' as \`dataSource\`
-      FROM tblNewTicketMasterVenueEvent ve
+      FROM tblnewticketmastervenueevent ve
     -- filter to only include results from nost recent scrape
   )
   SELECT
@@ -239,7 +239,7 @@ var venueEventsMultiVender = venueName => {
   , ve.\`minTicketCost\` as \`Max Cost\`
   , 'ticketmaster' as \`dataSource\` 
   FROM ve
-    LEFT JOIN tblTicketmastervenue v
+    LEFT JOIN tblticketmastervenue v
     ON v.id = ve.venue_id
     ${venueName ? " where v.`name` = '" + venueName + "'" : ""}` +
     `
@@ -249,8 +249,8 @@ var venueEventsMultiVender = venueName => {
         , minListPrice as \`Min Cost\`
         , maxListPrice as \`Max Cost\`
         , 'stubhub' as \`dataSource\` 
-         FROM tblNewStubHubVenueEvent ve2
-        LEFT JOIN tblStubhubvenue v2  on ve2.venue_id = v2.id
+         FROM tblnewstubhubvenueevent ve2
+        LEFT JOIN tblstubhubvenue v2  on ve2.venue_id = v2.id
          WHERE eventDate is not null
          ${venueName ? " and v2.`name` = '" + venueName + "'" : ""}` +
     `
