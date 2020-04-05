@@ -1,5 +1,35 @@
 //works
-var stubhubEvents = venueName => {
+
+var eventlist = (param1) => {
+  // Code here
+  return ` select distinct 
+  tmve.name as eventname
+  , tmve.venue_id
+  , CAST(tmve.dates_start_dateTime as DATE) as eventdate 
+  , tv.name as venuename
+  , tv.latitude as latitude
+  , tv.longitude as longitude
+  , 'ticketmaster' as dataource
+  from tblnewticketmastervenueevent tmve
+  left join tblticketmastervenue tv on tv.id = tmve.venue_id
+  where tv.name not like '%Parking%'
+  union
+  select distinct sve.name as eventname
+  , CAST(sve.eventDate as DATE) as eventdate
+  , sve.venue_id
+  , sv.name as venuename
+  , sc.latitude as latitude
+  , sc.longitude as longitude
+  , 'stubhub' as datasource
+  from tblnewstubhubvenueevent sve
+  left join tblstubhubvenue sv on sve.venue_id =sv.id
+  left join tblstubhubcity sc on sc.city = sv.city
+  where sv.name not like '%Parking%'
+                               `;
+};
+module.exports.eventlist = eventlist;
+
+var stubhubEvents = (venueName) => {
   // Code here
   return `         SELECT ve.name as \`Event Name\`  
                             , eventDate as \`Event Date\`   
@@ -19,7 +49,7 @@ var stubhubEvents = venueName => {
 module.exports.stubhubEvents = stubhubEvents;
 
 //works
-var ticketmasterEvents = venueName => {
+var ticketmasterEvents = (venueName) => {
   return `
     with ve as 
             (             
@@ -59,10 +89,11 @@ var ticketmasterEvents = venueName => {
 module.exports.ticketmasterEvents = ticketmasterEvents;
 //works
 //hmm mssql server has an INCLUDE_NULL_VALUES clause when returning json. How is that handled in this senario???
-var cityVenues = eventDate => {
+var cityvenues = (eventDate) => {
   // Code here
   return `WITH a AS ( SELECT 
-                      v.\`name\`
+                   v.\`id\` as venueid
+                    , v.\`name\`
                     , v.\`city\`  
                     , c.\`latitude\`
                     , c.\`longitude\`
@@ -80,7 +111,8 @@ var cityVenues = eventDate => {
                 )
                     UNION                 
                 SELECT
-                    \`name\`
+                    \`id\` as venueid
+                    ,\`name\`
                     ,\`city\`
                     ,\`latitude\`
                     ,\`longitude\`
@@ -103,7 +135,8 @@ var cityVenues = eventDate => {
                 group by \`name\`
             ), multiple as (
                 select 
-                     a.\`name\`
+                    a.\`venueid\`
+                    ,a.\`name\`
                     ,a.\`city\`
                     ,a.\`latitude\`
                     ,a.\`longitude\`
@@ -111,7 +144,9 @@ var cityVenues = eventDate => {
                 from b 
                 left join a on a.\`name\` = b.\`name\`
             )
-            select \`name\`
+            select 
+            \`venueid\`
+            ,\`name\`
             , min(city) as city
             , min(latitude) as latitude
             , min(longitude) as longitude
@@ -124,9 +159,9 @@ var cityVenues = eventDate => {
             WHERE dSource != 'multiple'
             AND \`name\` NOT LIKE  '%Parking Lots'`;
 };
-module.exports.cityVenues = cityVenues;
+module.exports.cityvenues = cityvenues;
 
-var events = venueName => {
+var events = (venueName) => {
   return `
                     WITH ve as 
                         (
@@ -181,7 +216,7 @@ var events = venueName => {
 };
 module.exports.events = events;
 
-var venueAddress = venueName => {
+var venueAddress = (venueName) => {
   return `
     WITH a as (
         SELECT
@@ -215,7 +250,7 @@ var venueAddress = venueName => {
 };
 module.exports.venueAddress = venueAddress;
 
-var venueEventsMultiVender = venueName => {
+var venueEventsMultiVender = (venueName) => {
   return (
     `
   with ve as
@@ -282,7 +317,7 @@ module.exports.venueEventsMultiVender = venueEventsMultiVender;
 // };
 
 //gets events for a specific venue using the methods above
-module.exports.venueEvents = function(params) {
+module.exports.venueEvents = function (params) {
   var result = "";
   if (params.dataSource == "stubhub") {
     result = stubhubEvents(params.venueName);
