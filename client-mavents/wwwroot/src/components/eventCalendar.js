@@ -3,10 +3,11 @@ import "../App.css";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import timeGrid from "@fullcalendar/timegrid";
 
 import ReactDOM from "react-dom";
 import * as alasql from "alasql";
-import { Calendar } from "@fullcalendar/core";
+//import { Calendar } from "@fullcalendar/core";
 
 export default function EventCalendar(props) {
   const [venueData, setVenueData] = useState({});
@@ -15,16 +16,27 @@ export default function EventCalendar(props) {
   const [eventCount, setEventCount] = useState("NA");
   const [minCost, setMinCost] = useState("NA");
   const [maxCost, setMaxCost] = useState("NA");
+  const [style, setStyle] = useState({ background: "blanchedalmond" });
 
   var calendarRef = React.createRef();
+  const handleDateClick = (arg) => {
+    //alert(arg.dateStr);
+    props.onDateClick(arg.dateStr);
+  };
+  const handleEventClick = (arg) => {
+    console.log(arg);
+    props.onEventClick(arg.eventStr);
+  };
+
   const [calendar, setCalendar] = useState(
     <FullCalendar
       ref={calendarRef}
       defaultView="dayGridMonth"
-      plugins={[dayGridPlugin, interactionPlugin]}
+      plugins={[dayGridPlugin, interactionPlugin, timeGrid]}
       events={venueData}
       eventRender={EventDetail}
       dateClick={handleDateClick}
+      eventClick={handleEventClick}
       defaultDate={new Date()}
       //ref={calendar}
       customButtons={{
@@ -33,18 +45,18 @@ export default function EventCalendar(props) {
           click: () => {
             showDetail === true ? setShowDetail(false) : setShowDetail(true);
             //myCustomButton.text = btnText;
-          }
-        }
+          },
+        },
       }}
       header={{
         left: "prev,next today btnDetails",
         center: "title",
-        right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek"
+        right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
       }}
     />
   );
 
-  const setLabelValues = resp => {
+  const setLabelValues = (resp) => {
     setCalDate(
       alasql(
         "select [Event Date] as [val] from ? order by [Event Date] limit 1",
@@ -60,7 +72,7 @@ export default function EventCalendar(props) {
     // setCalDate(firstEventDate);
     setEventCount(
       alasql("select count(1) as val from ? order by [Event Date] limit 1", [
-        resp
+        resp,
       ])[0].val
     );
     setMinCost(
@@ -77,7 +89,7 @@ export default function EventCalendar(props) {
     );
   };
 
-  const col = x => {
+  const col = (x) => {
     if (x.dataSource == "ticketmaster") {
       return "RoyalBlue";
     } else if (x.dataSource == "stubhub") {
@@ -123,31 +135,28 @@ export default function EventCalendar(props) {
     return el;
   };
 
-  const handleDateClick = arg => {
-    // alert(arg.dateStr);
-    props.onDateClick(arg.dateStr);
-  };
-
   useEffect(() => {
     if (props) {
       fetch(process.env.domain + `\/api/events/${props.venue.name}/`)
-        .then(async response => response.json())
-        .then(async res => {
+        .then(async (response) => response.json())
+        .then(async (res) => {
           const resp = await res;
 
           setLabelValues(resp);
           console.log(eventCount);
+          console.log(["res[p", resp]);
           setVenueData(
             resp.map((x, i) => ({
-              id: x["Event Name"] + i.toString(),
+              id: x["EventId"],
               date: x["Event Date"],
               title: x["Event Name"],
               color: col(x),
+              url: x["url"],
               extendedProps: {
                 dataSource: x["dataSource"],
                 minCost: x["Min Cost"],
-                maxCost: x["Max Cost"]
-              }
+                maxCost: x["Max Cost"],
+              },
             }))
           );
           //venueData.map(event => calendar.ref.current.getApi().addEvent(event)); //update with new events
@@ -157,7 +166,7 @@ export default function EventCalendar(props) {
             : calendar.ref.current
                 .getApi()
                 .getEventSources()
-                .forEach(es => es.remove()),
+                .forEach((es) => es.remove()),
             calendar.ref.current.getApi().addEventSource(venueData); // calendar.ref.current.getApi().refetchEvents(venueData);
 
           calendar.ref.current.getApi().gotoDate(calDate); //goto new day
@@ -189,7 +198,7 @@ export default function EventCalendar(props) {
           </div>
         </div>
       </div>
-      <div>{calendar}</div>
+      <div style={style}>{calendar}</div>
     </div>
   );
 }

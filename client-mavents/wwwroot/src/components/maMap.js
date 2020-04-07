@@ -8,7 +8,7 @@ export default function MaMap(props) {
   //leaving this here for now, would be nice to move any data fetching out of rendering functions if possible
 
   const fetcher = async (...args) =>
-    fetch(...args).then(async response => response.json());
+    fetch(...args).then(async (response) => response.json());
   const domain = process.env.domain + "/api/";
   const endpoint = "cityVenues/";
   //const apiUrl = domain + endpoint;
@@ -28,7 +28,7 @@ export default function MaMap(props) {
   // console.log(props.data);
   if (error) return <div>failed to load</div>;
 
-  const col = x => {
+  const col = (x) => {
     if (x.dataSource == "ticketmaster") {
       return "RoyalBlue";
     } else if (x.dataSource == "stubhub") {
@@ -40,7 +40,7 @@ export default function MaMap(props) {
   // if (typeof datums[1] != "undefined") console.log(props.dataFilter(datums[1]));
   console.log(["datums", datums]);
   return (
-    <Map center={[41.98, -71.3824]} zoom={8}>
+    <Map center={[41.98, -71.3824]} zoom={8} style={{ height: "35rem" }}>
       <TileLayer
         url="https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}"
         attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
@@ -52,7 +52,7 @@ export default function MaMap(props) {
 
       {datums
         .filter(
-          x =>
+          (x) =>
             x.latitude != null &&
             x.longitude != null &&
             (x.dataSource == props.dataFilter || props.dataFilter == "any") //comeback: this hurst reusability. with chould be passed into the map
@@ -62,10 +62,10 @@ export default function MaMap(props) {
             <Marker
               key={i}
               position={{ lat: datum.latitude, lng: datum.longitude }}
-              onMouseOver={e => {
+              onMouseOver={(e) => {
                 e.target.openPopup();
               }}
-              onMouseOut={e => {
+              onMouseOut={(e) => {
                 e.target.closePopup();
               }}
               onClick={() => {

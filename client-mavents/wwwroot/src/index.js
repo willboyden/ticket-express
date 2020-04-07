@@ -12,9 +12,9 @@ import { AppContainer } from "react-hot-loader";
 //serviceWorker.unregister();
 
 //export default withStore(App, initialState)
-const render = Component => {
+const render = (Component) => {
   ReactDOM.render(
-    <AppContainer>
+    <AppContainer style={{ width: "100%" }}>
       <Component />
     </AppContainer>,
     document.getElementById("app")

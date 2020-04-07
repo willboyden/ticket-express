@@ -23,13 +23,13 @@ export default function App() {
   const [dateParam, setDateParam] = useState({});
   const [sidenavWidth, SetSidenavWidth] = useState("250px");
   const [mainMarginLeft, SetMainMrginLeft] = useState("250px");
-  const user = { name: "Tania", loggedIn: true };
+  const user = { name: "Jane", loggedIn: true };
   //TestC();
 
   //1 react hook with method to set data and var to hold data
   const [venue, setVenue] = useState({
     name: "Big Night Live",
-    dataSource: "ticketmaster"
+    dataSource: "ticketmaster",
   });
   const data = async () => await StoreFetchDataParallel(urls);
   //console.log(data);
@@ -53,7 +53,7 @@ export default function App() {
     "/contact": () => <Contact />,
     "/comingsoon": () => <CommingSoon />,
     "/privacypolicy": () => <PrivacyPolicy />,
-    "/*": () => <PrivacyPolicy />
+    "/*": () => <PrivacyPolicy />,
   };
 
   require("dotenv").config();
@@ -62,24 +62,24 @@ export default function App() {
   var urls = [
     {
       urlpath: process.env.domain + "/api/tblstubhubvenue/",
-      varname: "tblstubhubvenue"
+      varname: "tblstubhubvenue",
     },
     {
       urlpath: process.env.domain + "/api/tblnewticketmastervenueevent/",
-      varname: "tblnewticketmastervenueevent"
+      varname: "tblnewticketmastervenueevent",
     },
     {
       urlpath: process.env.domain + "/api/tblstubhubcity/",
-      varname: "tblstubhubcity"
+      varname: "tblstubhubcity",
     },
     {
       urlpath: process.env.domain + "/api/tblticketmastervenue/",
-      varname: "tblticketmastervenue"
+      varname: "tblticketmastervenue",
     },
     {
       urlpath: process.env.domain + "/api/tblnewstubhubvenueevent/",
-      varname: "tblnewstubhubvenueevent"
-    }
+      varname: "tblnewstubhubvenueevent",
+    },
   ];
   //const x = StoreFetchDataParallel(urls);
 
@@ -105,8 +105,9 @@ export default function App() {
   return (
     <DataProvider value={data}>
       <UserProvider value={user}>
-        <div id="heyo">
+        <div id="divOutterWrapper">
           {/* <div>{data ? data : null}</div> */}
+
           <div
             id="mySidenav"
             className="sidenav"
@@ -115,27 +116,47 @@ export default function App() {
             <a className="closebtn" onClick={navClick}>
               &times;
             </a>
-            <A href="/">Home</A>
-            <A href="/eventfinder">Event Finder</A>
-            <A href="/exploredata">Explore Data</A>
-            <A href="/eventcalendar">Event Calendar</A>
-            <A href="/venuemap">Venue Map</A>
-            <A href="/datasets">Data Sets</A>
-            <A href="/technology">Technology</A>
-            <A href="/contact">Contact</A>
-            <A href="/commingsoon">Comming Soon</A>
-            <A href="/privacypolicy">Privacy Policy</A>
+            <A href="/" onClick={() => closeNav()}>
+              Home
+            </A>
+            <A href="/eventfinder" onClick={() => closeNav()}>
+              Event Finder
+            </A>
+            <A href="/exploredata" onClick={() => closeNav()}>
+              Explore Data
+            </A>
+            <A href="/eventcalendar" onClick={() => closeNav()}>
+              Event Calendar
+            </A>
+            <A href="/venuemap" onClick={() => closeNav()}>
+              Venue Map
+            </A>
+            <A href="/datasets" onClick={() => closeNav()}>
+              Data Sets
+            </A>
+            <A href="/technology" onClick={() => closeNav()}>
+              Technology
+            </A>
+            <A href="/contact" onClick={() => closeNav()}>
+              Contact
+            </A>
+            <A href="/commingsoon" onClick={() => closeNav()}>
+              Comming Soon
+            </A>
+            <A href="/privacypolicy" onClick={() => closeNav()}>
+              Privacy Policy
+            </A>
           </div>
+          <span style={{ cursor: "pointer" }} onClick={navClick}>
+            &#9776;
+          </span>
           <div
             id="main"
             className="container"
             style={{
-              marginLeft: mainMarginLeft
+              marginLeft: mainMarginLeft,
             }}
           >
-            <span style={{ cursor: "pointer" }} onClick={navClick}>
-              &#9776;
-            </span>
             <div className="row">{routeResult}</div>
           </div>
         </div>

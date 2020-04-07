@@ -150,8 +150,8 @@ async function checkRedisStore() {
 }
 
 //dynamically get port environment variable (set outside of application)
-//const port = process.env.PORT || 3000; //def to 3000 if envVar not set
-const port = 3000;
+const port = process.env.PORT || 3000; //def to 3000 if envVar not set
+//const port = 3000;
 app.listen(port, async () => {
   console.log(`listening on port ${port} testing ${""}`);
   await checkRedisStore();
@@ -163,9 +163,15 @@ app.listen(port, async () => {
   });
 });
 
-async function requestUrlAsync(url, resp) {
+async function requestUrlAsync(url, resp, headers = null) {
   return new Promise(async (resolve, reject) => {
-    await fetch(url)
+    const hdrs = headers
+      ? headers
+      : {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        };
+    await fetch(url, { headers: hdrs })
       .then(async (response) => {
         const rjson = await response.json();
         resp.send(rjson);
@@ -176,22 +182,51 @@ async function requestUrlAsync(url, resp) {
     //  return [url.varname, resolve(req)];
   });
 }
+
 app.get(
   "/api/ticketmasterApi/venues/:venueId",
   cors(corsOptionsDelegate),
   async (req, res) => {
     console.log("hit ticketmasterApi");
-    // console.log(process.env.ticketmasterapikey);
     const urlstr = `https://app.ticketmaster.com/discovery/v2/venues/${req.params.venueId}?apikey=${process.env.ticketmasterapikey}&locale=*`;
     requestUrlAsync(urlstr, res);
-    // console.log(requestUrlAsync(urlstr));
-    // console.log(
-    //   requestUrlAsync(urlstr).then((x) => {
-    //     return x;
-    //     // console.log(x);
-    //     //  res.send(x);
-    //   })
-    // );
+  }
+);
+
+const requestStubhubVenue = (res, id) => {
+  const urlstr = `https://api.stubhub.com/partners/search/venues/v3/?id=${id}`;
+  // const data = { id: { id }, rows: 500, country: countryNameStr };
+  const headers = {
+    Authorization: "Bearer " + "rwOLwWj5SA6rGolA9Yxe1UGWtHO7",
+    Accept: "application/json",
+    "Accept-Encoding": "application/json",
+  };
+
+  console.log("hit ticketmasterApi");
+  // const urlstr = `https://app.ticketmaster.com/discovery/v2/events/${req.params.eventId}/images?apikey=${process.env.ticketmasterapikey}&locale=*`;
+  requestUrlAsync(urlstr, res, headers);
+};
+
+app.get(
+  "/api/stubhubVenueApi/venues/:venueId",
+  //def getStateData(stateCodeStr, countryNameStr, appToken):
+  cors(corsOptionsDelegate),
+  cors(corsOptionsDelegate),
+  async (req, res) => {
+    requestStubhubVenue(res, req.params.venueId);
+    // console.log("hit ticketmasterApi");
+    // const urlstr = `https://app.ticketmaster.com/discovery/v2/events/${req.params.eventId}/images?apikey=${process.env.ticketmasterapikey}&locale=*`;
+    // requestUrlAsync(urlstr, res);
+  }
+);
+
+app.get(
+  "/api/ticketmasterApi/eventImages/:eventId",
+  cors(corsOptionsDelegate),
+  async (req, res) => {
+    console.log("hit ticketmasterApi");
+    const urlstr = `https://app.ticketmaster.com/discovery/v2/events/${req.params.eventId}/images?apikey=${process.env.ticketmasterapikey}&locale=*`;
+    requestUrlAsync(urlstr, res);
   }
 );
 

@@ -167,25 +167,30 @@ var events = (venueName) => {
                         (
                             SELECT
                             \`venue_id\`
+                            , \`id\` as \`EventId\`
                             , \`genre_name\`
                             , \`name\` as \`Event\`
                             , \`priceRanges_max\` as \`maxTicketCost\`
                             , \`priceRanges_min\` as \`minTicketCost\`
+                            , \`url\`
                             , CAST( \`dates_start_dateTime\` AS DATE) as \`Event Date\` 
                             FROM tblnewticketmastervenueevent ve
                         )
                     SELECT 
                         v.\`name\` as \`Venue\` 
                         , ve.\`Event\` as \`Event Name\`
+                        , ve.\`EventId\`
                         , ve.\`Event Date\`
                         -- , ve.\`genre_name\` as \`Genre\`
                         , ve.\`maxTicketCost\` as \`Min Cost\`
                         , ve.\`minTicketCost\` as \`Max Cost\`
+                        , ve.\`url\`
                         , 'ticketmaster' as dataSource
                     FROM ve
                     LEFT JOIN tblticketmastervenue v 
                         ON v.id = ve.venue_id
-                    WHERE ve.genre_name is not null
+                    WHERE 1=1 
+                    -- AND ve.genre_name is not null
                         ${venueName ? "AND `name` = '" + venueName + "'" : ""} 
                     GROUP BY
                     v.\`name\`
@@ -200,10 +205,12 @@ var events = (venueName) => {
                     SELECT 
                     v.\`name\` as \`Venue\` 
                     , ve.\`name\` \`Event Name\`
+                    , ve.\`id\` as \`EventId\`
                     , ve.eventDate \`Event Date\`
                     , ve.\`minListPrice\` \`Min Cost\`
                     , ve.\`maxListPrice\` \`Max Cost\`
                     , 'stubhub' as dataSource
+                    , 'https://www.stubhub.com/event/' + ve.\`id\` as url
                     FROM \`tblnewstubhubvenueevent\` ve
                     LEFT JOIN \`tblstubhubvenue\` v
                     on ve.venue_id = v.id

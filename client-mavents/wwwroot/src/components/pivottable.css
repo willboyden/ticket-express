@@ -55,6 +55,7 @@ table.pvtTable tbody tr td {
 
 .pvtRowOrder,
 .pvtColOrder {
+  color: aliceblue;
   cursor: pointer;
   width: 1rem;
   margin-left: 0rem;
@@ -70,13 +71,15 @@ table.pvtTable tbody tr td {
 .pvtAxisContainer,
 .pvtVals {
   border: 1px solid #a2b1c6;
-  background: #f2f5fa;
+  background: #111;
   padding: 5px;
   min-width: 20px;
   min-height: 20px;
 }
 
 .pvtRenderers {
+  border: 1px solid #a2b1c6;
+  background-color: #111;
   padding-left: 5px;
   user-select: none;
 }
@@ -113,7 +116,7 @@ table.pvtTable tbody tr td {
 .pvtDropdownMenu {
   background: white;
   position: absolute;
-  width: 100%;
+  width: auto;
   margin-top: -1px;
   border-radius: 0 0 4px 4px;
   border: 1px solid #a2b1c6;
@@ -139,6 +142,9 @@ table.pvtTable tbody tr td {
 
 .pvtRows {
   height: 35px;
+}
+.pvtAxisContainer {
+  background-color: #111;
 }
 .pvtAxisContainer pvtHorizList pvtCols {
   width: 20ox;
@@ -251,7 +257,7 @@ table.pvtTable tbody tr td {
 
 .pvtFilterBox {
   z-index: 100;
-  width: 20rem;
+  width: auto;
   border: 1px solid #506784;
   background-color: #fff;
   position: absolute;
@@ -262,6 +268,13 @@ table.pvtTable tbody tr td {
   -moz-user-select: none;
   -khtml-user-select: none;
   -ms-user-select: none;
+}
+
+a.pvtRowOrder {
+  color: aliceblue !important;
+}
+a.pvtColOrder {
+  color: aliceblue !important;
 }
 
 .pvtFilterBox h4 {

@@ -3,7 +3,7 @@ const Dotenv = require("dotenv-webpack");
 module.exports = {
   entry: ["babel-polyfill", "react-hot-loader/patch", "./src/index.js"],
   output: {
-    filename: "bundle.js"
+    filename: "bundle.js",
   },
   module: {
     rules: [
@@ -13,30 +13,30 @@ module.exports = {
           loader: "babel-loader",
           options: {
             presets: [["env", { modules: false }], "react"],
-            plugins: ["react-hot-loader/babel"]
-          }
+            plugins: ["react-hot-loader/babel"],
+          },
         },
-        exclude: /node_modules/
+        exclude: /node_modules/,
       },
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader"]
-      }
-    ]
+        use: ["style-loader", "css-loader"],
+      },
+    ],
   },
   node: {
-    fs: "empty"
+    fs: "empty",
   },
   plugins: [
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    new Dotenv()
+    new Dotenv(),
   ],
   devServer: {
     contentBase: "./app_root",
-    hot: true
+    hot: true,
   },
   resolve: {
-    extensions: [".js", ".jsx"]
-  }
+    extensions: [".js", ".jsx"],
+  },
 };
