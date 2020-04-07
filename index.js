@@ -163,15 +163,16 @@ app.listen(port, async () => {
   });
 });
 
-async function requestUrlAsync(url, resp, headers = null) {
+async function requestUrlAsync(
+  url,
+  resp,
+  headers = {
+    "Content-Type": "application/json",
+    // 'Content-Type': 'application/x-www-form-urlencoded',
+  }
+) {
   return new Promise(async (resolve, reject) => {
-    const hdrs = headers
-      ? headers
-      : {
-          "Content-Type": "application/json",
-          // 'Content-Type': 'application/x-www-form-urlencoded',
-        };
-    await fetch(url, { headers: hdrs })
+    await fetch(url, { headers: { headers } })
       .then(async (response) => {
         const rjson = await response.json();
         resp.send(rjson);
@@ -197,7 +198,7 @@ const requestStubhubVenue = (res, id) => {
   const urlstr = `https://api.stubhub.com/partners/search/venues/v3/?id=${id}`;
   // const data = { id: { id }, rows: 500, country: countryNameStr };
   const headers = {
-    Authorization: "Bearer " + "rwOLwWj5SA6rGolA9Yxe1UGWtHO7",
+    Authorization: "Bearer " + process.env.subhubapikey,
     Accept: "application/json",
     "Accept-Encoding": "application/json",
   };
