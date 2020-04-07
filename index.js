@@ -212,7 +212,6 @@ app.get(
   "/api/stubhubVenueApi/venues/:venueId",
   //def getStateData(stateCodeStr, countryNameStr, appToken):
   cors(corsOptionsDelegate),
-  cors(corsOptionsDelegate),
   async (req, res) => {
     requestStubhubVenue(res, req.params.venueId);
     // console.log("hit ticketmasterApi");

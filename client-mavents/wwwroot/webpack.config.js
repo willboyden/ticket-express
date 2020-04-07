@@ -3,7 +3,7 @@ const Dotenv = require("dotenv-webpack");
 module.exports = {
   entry: ["babel-polyfill", "react-hot-loader/patch", "./src/index.js"],
   output: {
-    filename: "bundle.js",
+    filename: "../../build/bundle.js",
   },
   module: {
     rules: [
@@ -33,7 +33,7 @@ module.exports = {
     new Dotenv(),
   ],
   devServer: {
-    contentBase: "./app_root",
+    contentBase: "../buiild",
     hot: true,
   },
   resolve: {
