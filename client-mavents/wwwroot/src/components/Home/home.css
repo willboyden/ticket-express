@@ -1,0 +1,25 @@
+.header {
+  grid-area: header;
+}
+.main {
+  grid-area: main;
+}
+
+.grid-container {
+  color: aliceblue;
+  display: grid;
+  grid-template-areas:
+    "x x header header header header"
+    "x x main main main main";
+  grid-gap: 10px;
+  background-color: #818181;
+  opacity: 0.9;
+  padding: 10px;
+}
+
+.grid-container > div {
+  background-color: #111;
+  text-align: center;
+  padding: 20px 0;
+  font-size: 30px;
+}

@@ -210,7 +210,7 @@ var events = (venueName) => {
                     , ve.\`minListPrice\` \`Min Cost\`
                     , ve.\`maxListPrice\` \`Max Cost\`
                     , 'stubhub' as dataSource
-                    , 'https://www.stubhub.com/event/' + ve.\`id\` as url
+                    , ('https://www.stubhub.com/event/' + ve.\`id\`) as url
                     FROM \`tblnewstubhubvenueevent\` ve
                     LEFT JOIN \`tblstubhubvenue\` v
                     on ve.venue_id = v.id

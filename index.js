@@ -27,6 +27,12 @@ client.on("error", (err) => {
   console.log("Error " + err);
 });
 
+//logging, todo: write to json file
+app.use((req, res, next) => {
+  //console.log("%O", req);
+  next();
+});
+
 var corsOptionsDelegate = function (req, callback) {
   var corsOptions;
   corsOptions = { origin: true };
@@ -160,6 +166,7 @@ app.listen(port, async () => {
     for (var i = 0, len = keys.length; i < len; i++) {
       console.log("available reid key ---- " + keys[i]);
     }
+    console.log();
   });
 });
 
@@ -405,7 +412,6 @@ app.get(
   async (req, res) => {
     getRedisAsync("tblstubhubvenue")
       .then((x) => {
-        //console.log(x);
         res.send(x);
       })
       .catch(console.error);

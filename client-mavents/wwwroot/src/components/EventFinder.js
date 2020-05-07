@@ -4,10 +4,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import EventCalender from "./eventCalendar";
 import DataContext from "./DataContext";
 import { Button, ButtonGroup } from "reactstrap";
-import JsonTable from "./JsonTable";
+import JsonTable from "./JsonTable/JsonTable";
 import ImageCarousel from "./ImageCarousel";
 import AccordionVertical from "./AccordionVertical";
-
 //import "./main.scss"; // webpack must be configured to do this
 
 export default function EventFinder() {
@@ -90,120 +89,32 @@ export default function EventFinder() {
     return imagesArr;
   }
 
-  // useEffect(() => {
-  //   console.log("effff");
-  //   (async () => {
-  //     // if (venue.name.includes("Big")) {
-  //     //   } else {
-  //     //console.log([Promise.resolve(venueJson(venue)), "venueJson(venue)"]);
-  //     venueJson(venue).then(async (a) => {
-  //       const b = await a;
-  //       setTbl(<JsonTable jsondata={b} />);
+  useEffect(() => {
+    //  console.log("effff");
+    (async () => {
+      // if (venue.name.includes("Big")) {
+      //   } else {
+      //console.log([Promise.resolve(venueJson(venue)), "venueJson(venue)"]);
+      venueJson(venue).then(async (a) => {
+        const b = await a;
+        setTbl(<JsonTable jsondata={b} />);
 
-  //       const imgArr = await getImageArr(b).then(async (c) => {
-  //         const d = await c;
-  //         return d;
-  //       });
+        const imgArr = await getImageArr(b).then(async (c) => {
+          const d = await c;
+          return d;
+        });
 
-  //       setImageCarousel(
-  //         imgArr.length >= 1 ? (
-  //           <ImageCarousel imgArr={imgArr}></ImageCarousel>
-  //         ) : (
-  //           <React.Fragment></React.Fragment>
-  //         )
-  //       );
-  //     });
-  //     // }
-  //   })();
-  // }, [venue]);
-
-  //   return (
-  //     <div className="col-12">
-  //       <div className="row">
-  //         <div className="col-9">
-  //           <h3 id="pageTitle">
-  //             <span id="venueCount"></span>
-  //             Click On A Venue To View Its Event Schedule
-  //           </h3>
-
-  //           <div>
-  //             <span>Filter By Ticket Provider</span>
-  //             <select
-  //               value={dataSourceFilter}
-  //               onChange={(e) => setDataSourceFilter(e.currentTarget.value)}
-  //               style={{
-  //                 backgroundColor: items.filter((a) =>
-  //                   a.value == dataSourceFilter ? a.bColor : "white"
-  //                 ),
-  //               }}
-  //             >
-  //               {items.map(({ label, value, bColor }) => (
-  //                 <option
-  //                   key={value}
-  //                   value={value}
-  //                   style={{ backgroundColor: bColor }}
-  //                 >
-  //                   {label}
-  //                 </option>
-  //               ))}
-  //             </select>
-  //             <button
-  //               onClick={() => toggleMarkers()}
-  //               className="btn btn-secondary"
-  //             >
-  //               Toggle Markers
-  //             </button>
-  //           </div>
-  //         </div>
-  //         <div className="col-3"></div>
-  //       </div>
-
-  //       <div className="row">
-  //         <div className="col-6">
-  //           {/* 2 pass "data setter" to child of this component / sibling of component being effected by event  */}
-  //           <MaMap
-  //             style={{ height: "100%" }}
-  //             // ref={maMapRef}
-  //             action={(venue) => {
-  //               setVenue(venue);
-  //               //venueJson(venue);
-  //             }}
-  //             dateClicked={dateParam}
-  //             dataFilter={dataSourceFilter}
-  //             showMarkers={showMarkers}
-  //           ></MaMap>
-  //         </div>
-  //         {/* <div style={{ maxHeight: "20rem" }} className="col-3">
-  //           <div style={{ width: "fit-content", minWidth: "45rem" }}>
-  //             { {imgCarousel}
-  //             <AccordionVertical
-  //               cardhead="Venue Details"
-  //               cardbody={tbl}
-  //             ></AccordionVertical> }
-  //           </div>
-  //         </div> */}
-  //         <div className="col-6">
-  //           {/* 3 use data in child component */}
-  //           <EventCalender
-  //             venue={venue}
-  //             onEventClick={(eventId) => {
-  //               setSelectedEvent(eventId);
-  //             }}
-  //             onDateClick={(dateParam) => {
-  //               setDateParam(dateParam);
-  //               console.log(dateParam);
-  //             }}
-  //             onEventClick={(eventParam) => {
-  //               setEventParam(eventParam);
-  //               console.log(eventParam);
-  //             }}
-  //           />
-  //         </div>
-  //         {/* <div className="col-3"></div> */}
-  //       </div>
-  //     </div>
-  //   );
-  // }
+        setImageCarousel(
+          imgArr.length >= 1 ? (
+            <ImageCarousel imgArr={imgArr}></ImageCarousel>
+          ) : (
+            <React.Fragment></React.Fragment>
+          )
+        );
+      });
+      // }
+    })();
+  }, [venue]);
 
   return (
     <div className="col-12">
@@ -261,15 +172,20 @@ export default function EventFinder() {
             showMarkers={showMarkers}
           ></MaMap>
         </div>
-        {/* <div style={{ maxHeight: "20rem" }} className="col-3">
-          <div style={{ width: "fit-content", minWidth: "45rem" }}>
-             {imgCarousel}
+        <div style={{ maxHeight: "20rem" }} className="col-3">
+          <div
+            style={{
+              width: "fit-content",
+              maxWidth: "40rem",
+            }}
+          >
+            {imgCarousel}
             <AccordionVertical
               cardhead="Venue Details"
               cardbody={tbl}
-            ></AccordionVertical> 
+            ></AccordionVertical>
           </div>
-        </div> */}
+        </div>
       </div>
 
       <div className="row">
@@ -295,6 +211,94 @@ export default function EventFinder() {
     </div>
   );
 }
+
+//   return (
+//     <div className="col-12">
+//       <div className="row">
+//         <div className="col-9">
+//           <h3 id="pageTitle">
+//             <span id="venueCount"></span>
+//             Click On A Venue To View Its Event Schedule
+//           </h3>
+
+//           <div>
+//             <span>Filter By Ticket Provider</span>
+//             <select
+//               value={dataSourceFilter}
+//               onChange={(e) => setDataSourceFilter(e.currentTarget.value)}
+//               style={{
+//                 backgroundColor: items.filter((a) =>
+//                   a.value == dataSourceFilter ? a.bColor : "white"
+//                 ),
+//               }}
+//             >
+//               {items.map(({ label, value, bColor }) => (
+//                 <option
+//                   key={value}
+//                   value={value}
+//                   style={{ backgroundColor: bColor }}
+//                 >
+//                   {label}
+//                 </option>
+//               ))}
+//             </select>
+//             <button
+//               onClick={() => toggleMarkers()}
+//               className="btn btn-secondary"
+//             >
+//               Toggle Markers
+//             </button>
+//           </div>
+//         </div>
+//         <div className="col-3"></div>
+//       </div>
+
+//       <div className="row">
+//         <div className="col-6">
+//           {/* 2 pass "data setter" to child of this component / sibling of component being effected by event  */}
+//           <MaMap
+//             style={{ height: "100%" }}
+//             // ref={maMapRef}
+//             action={(venue) => {
+//               setVenue(venue);
+//               //venueJson(venue);
+//             }}
+//             dateClicked={dateParam}
+//             dataFilter={dataSourceFilter}
+//             showMarkers={showMarkers}
+//           ></MaMap>
+//         </div>
+//         {/* <div style={{ maxHeight: "20rem" }} className="col-3">
+//           <div style={{ width: "fit-content", minWidth: "45rem" }}>
+//             { {imgCarousel}
+//             <AccordionVertical
+//               cardhead="Venue Details"
+//               cardbody={tbl}
+//             ></AccordionVertical> }
+//           </div>
+//         </div> */}
+//         <div className="col-6">
+//           {/* 3 use data in child component */}
+//           <EventCalender
+//             venue={venue}
+//             onEventClick={(eventId) => {
+//               setSelectedEvent(eventId);
+//             }}
+//             onDateClick={(dateParam) => {
+//               setDateParam(dateParam);
+//               console.log(dateParam);
+//             }}
+//             onEventClick={(eventParam) => {
+//               setEventParam(eventParam);
+//               console.log(eventParam);
+//             }}
+//           />
+//         </div>
+//         {/* <div className="col-3"></div> */}
+//       </div>
+//     </div>
+//   );
+// }
 
 {
   /* <ButtonGroup>

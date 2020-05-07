@@ -34,14 +34,14 @@ function PivotTableUISmartWrapper(props) {
       <PivotTableUI
         plotlyOptions={{
           width: window.innerWidth / 2,
-          height: window.innerHeight / 2
+          height: window.innerHeight / 2,
         }}
         renderers={Object.assign(
           {},
           TableRenderers,
           createPlotlyRenderers(Plot)
         )}
-        onChange={s => {
+        onChange={(s) => {
           // console.log(["s", s]);
           SetPivotTableUI(<PivotTableUI {...s}></PivotTableUI>);
         }}
@@ -75,7 +75,7 @@ export default function PivotTableWithUI(props) {
       if (typeof props.data.data == "function") {
         props.data
           .data()
-          .then(d => {
+          .then((d) => {
             const pivotstate = {
               mode: "demo",
               filename: "Event Data Explorer",
@@ -86,13 +86,13 @@ export default function PivotTableWithUI(props) {
                 plotlyConfig: {
                   layout: {
                     title: "A Fancy Plot",
-                    autosize: true
-                  }
+                    autosize: true,
+                  },
                 },
                 aggregatorName: "Sum over Sum",
                 vals: ["Select Value", "Select Value"],
-                rendererName: "Grouped Column Chart"
-              }
+                rendererName: "Grouped Column Chart",
+              },
             };
             SetPivotUI(
               <PivotTableUISmartWrapper
@@ -101,7 +101,7 @@ export default function PivotTableWithUI(props) {
               />
             );
           })
-          .catch(err => console.log(err));
+          .catch((err) => console.log(err));
       } else {
         console.log(["in else", props.data]);
         const pivotstate = {
@@ -113,9 +113,9 @@ export default function PivotTableWithUI(props) {
             rendererName: "Grouped Column Chart",
             plotlyConfig: {},
             aggregatorName: "Sum over Sum",
-            vals: ["Tip", "Total Bill"],
-            rendererName: "Grouped Column Chart"
-          }
+            vals: ["Select Value", "Select Value"],
+            rendererName: "Grouped Column Chart",
+          },
         };
         SetPivotUI(
           <PivotTableUISmartWrapper

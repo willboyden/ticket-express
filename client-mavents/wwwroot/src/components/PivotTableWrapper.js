@@ -10,17 +10,17 @@ export default function PivotTableWrapper(data) {
     const button = (
       <button
         value={txaVal}
-        onClick={e => {
+        onClick={(e) => {
           setValue(e.target.value);
           data
             .data()
-            .then(d => {
+            .then((d) => {
               console.log(alasql(value, [d["tblstubhubcity"]]));
               console.log(d["tblstubhubcity"]);
               setDataKey("tblstubhubcity");
               // console.log(filteredData);
             })
-            .catch(err => console.log(err));
+            .catch((err) => console.log(err));
         }}
       >
         Send Query
@@ -69,16 +69,16 @@ export default function PivotTableWrapper(data) {
       plotlyOptions: { width: 900, height: 500 },
       plotlyConfig: {},
       tableOptions: {
-        clickCallback: function(e, value, filters, pivotData) {
+        clickCallback: function (e, value, filters, pivotData) {
           var names = [];
-          pivotData.forEachMatchingRecord(filters, function(record) {
+          pivotData.forEachMatchingRecord(filters, function (record) {
             console.log("in click call back");
             names.push(record.Meal); //left over from example comeback later
           });
           alert(names.join("\n"));
-        }
-      }
-    }
+        },
+      },
+    },
   });
 
   useEffect(() => {
@@ -89,15 +89,15 @@ export default function PivotTableWrapper(data) {
         const result = await data;
         // setDataResolved(result);
         //  setIsLoading(false);
-        result.data().then(x => {
+        result.data().then((x) => {
           setQryBtnList(
-            Object.keys(x).map(b => {
+            Object.keys(x).map((b) => {
               //  console.log(b);
 
               return (
                 <button
                   value={b}
-                  onClick={e => {
+                  onClick={(e) => {
                     // console.log(e.target.value);
                     //       console.log(x[b]);
                     //   console.log(userInput.props.value + b);
@@ -130,16 +130,16 @@ export default function PivotTableWrapper(data) {
                 plotlyOptions: { width: 900, height: 500 },
                 plotlyConfig: {},
                 tableOptions: {
-                  clickCallback: function(e, value, filters, pivotData) {
+                  clickCallback: function (e, value, filters, pivotData) {
                     var names = [];
-                    pivotData.forEachMatchingRecord(filters, function(record) {
+                    pivotData.forEachMatchingRecord(filters, function (record) {
                       console.log("in click call back");
                       names.push(record.Meal); //left over from example comeback later
                     });
                     alert(names.join("\n"));
-                  }
-                }
-              }
+                  },
+                },
+              },
             });
             console.log(["passing dataKey " + dataKey]);
             setPtable(
@@ -152,11 +152,11 @@ export default function PivotTableWrapper(data) {
             setIsLoading(false);
           }
           setBtnList(
-            Object.keys(x).map(b => {
+            Object.keys(x).map((b) => {
               return (
                 <button
                   value={b}
-                  onClick={e => {
+                  onClick={(e) => {
                     setFilteredData(x[b]);
                     setDataKey(b);
                     //  setTxaValue(e.target.value);
@@ -177,8 +177,6 @@ export default function PivotTableWrapper(data) {
     <div>
       <div className="row text-center">
         <div className="col-md-3 text-center">
-          <p>...or paste some data:</p>
-
           {/* {userInput} */}
           {userInputBtn}
           {btnList}
@@ -186,7 +184,7 @@ export default function PivotTableWrapper(data) {
 
           <textarea
             value={txaValue}
-            onChange={e => {
+            onChange={(e) => {
               console.log(e.target.value);
               const val = e.target.value;
               setTxaValue(val);

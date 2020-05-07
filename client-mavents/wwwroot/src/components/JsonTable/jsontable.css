@@ -1,0 +1,27 @@
+.accordion table.table-dark {
+  max-width: 100%;
+  margin: 15px;
+}
+
+.accordion table {
+  max-width: 35rem;
+}
+.accordion tr {
+  max-width: 100%;
+  border-bottom-style: solid;
+}
+.accordion td {
+  max-width: 15rem;
+  padding: 2px;
+  word-wrap: break-word;
+}
+.accordion td td {
+  max-width: 10rem;
+  padding: 2px;
+  word-wrap: break-word;
+}
+.accordion td td td {
+  max-width: 5rem;
+  padding: 2px;
+  word-wrap: break-word;
+}

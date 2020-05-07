@@ -13,7 +13,10 @@ export default function Home() {
           Im a full stack web developer specializing in data analysis and
           visualization. <br />
           If you would like to in contact please reach me via
-          <a href="https://linkedin.com/in/william-boyden-88a324b6">LinkedIn</a>
+          <a href="https://linkedin.com/in/william-boyden-88a324b6">
+            {" "}
+            LinkedIn
+          </a>
         </p>
       </div>
     </div>

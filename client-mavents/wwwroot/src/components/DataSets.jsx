@@ -14,9 +14,14 @@ export default function DataSets(props) {
 
   useEffect(() => {
     (async () => {
-      const pd = await props.data();
+      console.log(props);
+      console.log(props.data);
+      const pd = await props.data;
       console.log(pd[datakey]);
       setDs_Data(pd[datakey]);
+      // const pd = await props.data();
+      // console.log(pd[datakey]);
+      // setDs_Data(pd[datakey]);
     })();
     //setData()
   }, [datakey]);

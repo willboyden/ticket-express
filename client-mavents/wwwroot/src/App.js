@@ -6,7 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./StyleSheets/navBar.css";
 import EventFinder from "./components/EventFinder";
 import EventCalendar from "./components/eventCalendar";
-import Home from "./components/Home";
+import Home from "./components/Home/Home";
 import Technology from "./components/Technology";
 import CommingSoon from "./components/CommingSoon";
 import Contact from "./components/Contact";
@@ -24,6 +24,8 @@ export default function App() {
   const [sidenavWidth, SetSidenavWidth] = useState("250px");
   const [mainMarginLeft, SetMainMrginLeft] = useState("250px");
   const user = { name: "Jane", loggedIn: true };
+  const [data, setData] = useState("na");
+
   //TestC();
 
   //1 react hook with method to set data and var to hold data
@@ -31,7 +33,19 @@ export default function App() {
     name: "Big Night Live",
     dataSource: "ticketmaster",
   });
-  const data = async () => await StoreFetchDataParallel(urls);
+  const asyncData = async () => await StoreFetchDataParallel(urls);
+
+  useEffect(() => {
+    //console.log("useEffect App.js ran");
+    (async () => {
+      if (data == "na") {
+        let d = await StoreFetchDataParallel(urls);
+        console.log("done getting data");
+        setData(d);
+      }
+    })();
+  });
+
   //console.log(data);
 
   //  console.log(data);
@@ -45,7 +59,7 @@ export default function App() {
         </UserProvider>
       </DataProvider>
     ),
-    "/exploredata": () => <PivotTableWrapper data={data} />,
+    "/exploredata": () => <PivotTableWrapper data={asyncData} />,
     "/datasets": () => <DataSets data={data} />,
     "/eventcalendar": () => <EventCalendar venue={venue} />,
     "/venuemap": () => <MaMap />,
@@ -125,12 +139,12 @@ export default function App() {
             <A href="/exploredata" onClick={() => closeNav()}>
               Explore Data
             </A>
-            <A href="/eventcalendar" onClick={() => closeNav()}>
+            {/* <A href="/eventcalendar" onClick={() => closeNav()}>
               Event Calendar
             </A>
             <A href="/venuemap" onClick={() => closeNav()}>
               Venue Map
-            </A>
+            </A> */}
             <A href="/datasets" onClick={() => closeNav()}>
               Data Sets
             </A>
@@ -140,12 +154,12 @@ export default function App() {
             <A href="/contact" onClick={() => closeNav()}>
               Contact
             </A>
-            <A href="/commingsoon" onClick={() => closeNav()}>
+            {/* <A href="/commingsoon" onClick={() => closeNav()}>
               Comming Soon
             </A>
             <A href="/privacypolicy" onClick={() => closeNav()}>
               Privacy Policy
-            </A>
+            </A> */}
           </div>
           <span style={{ cursor: "pointer" }} onClick={navClick}>
             &#9776;
