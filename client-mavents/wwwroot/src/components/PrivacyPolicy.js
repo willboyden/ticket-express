@@ -1,5 +1,4 @@
 import React from "react";
-import FetchDataParallel from "./FetchDataParallel";
 export default function Technology() {
   console.log(value);
   return (

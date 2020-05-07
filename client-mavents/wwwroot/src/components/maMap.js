@@ -1,6 +1,9 @@
 import useSWR from "swr";
 import React, { useEffect, useState } from "react";
 import { Map, Marker, Popup, TileLayer, Circle } from "react-leaflet";
+import "react-leaflet-fullscreen/dist/styles.css";
+import FullscreenControl from "react-leaflet-fullscreen";
+
 require("dotenv").config();
 // import { Icon, Circle } from "leaflet";
 
@@ -38,9 +41,9 @@ export default function MaMap(props) {
     }
   };
   // if (typeof datums[1] != "undefined") console.log(props.dataFilter(datums[1]));
-  console.log(["datums", datums]);
   return (
     <Map center={[41.98, -71.3824]} zoom={8} style={{ height: "35rem" }}>
+      <FullscreenControl position="topleft" />
       <TileLayer
         url="https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}"
         attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
